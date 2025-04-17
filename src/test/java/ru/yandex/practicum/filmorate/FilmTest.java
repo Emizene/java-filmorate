@@ -24,20 +24,18 @@ public class FilmTest extends FilmorateApplicationTests {
 
     @Test
     public void testSuccessGetFilm() throws Exception {
-        Film film1 = new Film("Name 1", "Description 1", LocalDate.of(2000, 7, 27), 120);
+        Film film1 = new Film("Name 1", "Description 1",
+                LocalDate.of(2000, 7, 27), 120);
         filmService.addFilm(film1);
         mockMvc.perform(get("/film"))
                 .andExpect(status().isOk())
                 .andExpect(content().json("""
-                        [
-                        	{
-                        		"id": 1,
+                        [{"id": 1,
                         		"name": "Name 1",
                         		"description": "Description 1",
                         		"releaseDate": "2000-07-27",
                         		"duration": 120
-                        	}
-                        ]
+                        	}]
                         """));
     }
 
@@ -47,31 +45,27 @@ public class FilmTest extends FilmorateApplicationTests {
         mockMvc.perform(post("/film")
                         .contentType(APPLICATION_JSON)
                         .content("""
-                                {
-                                	"name": "Name 1",
-                                	"description": "Description 1",
-                                	"releaseDate": "2000-07-27",
-                                	"duration": 120
-                                }
-                                """))
+                                {"id":1,"name":"Новое Название 1","description":"Новое Описание 1",
+                                "releaseDate":"2000-07-27","duration":120}"""))
                 .andExpect(status().isCreated());
         assertEquals(1, filmService.getAllFilms().getBody().size());
     }
 
     @Test
     public void testSuccessUpdateFilm() throws Exception {
-        Film film1 = new Film("Name 1", "Description 1", LocalDate.of(2000, 7, 27), 120);
+        Film film1 = new Film("Name 1", "Description 1",
+                LocalDate.of(2000, 7, 27), 120);
         filmService.addFilm(film1);
         mockMvc.perform(patch("/film")
                         .contentType(APPLICATION_JSON)
                         .content("""
                                 	{
-                                		"id": 1,
+                                	"id": 1,
                                 		"name": "new name 1",
                                 		"description": "new description 1",
                                 		"releaseDate": "2000-07-27",
                                 		"duration": 120
-                                	}
+                                		}
                                 """))
                 .andExpect(status().isOk());
         Film updateFilm = Objects.requireNonNull(filmService.getAllFilms().getBody()).getFirst();
@@ -82,7 +76,8 @@ public class FilmTest extends FilmorateApplicationTests {
 
     @Test
     public void testInvalidName() {
-        Film film1 = new Film("", "Description 1", LocalDate.of(2000, 7, 27), 120);
+        Film film1 = new Film("", "Description 1",
+                LocalDate.of(2000, 7, 27), 120);
 
         ValidationException exception = assertThrows(ValidationException.class,
                 () -> filmService.validateFilm(film1));
@@ -93,7 +88,8 @@ public class FilmTest extends FilmorateApplicationTests {
     @Test
     public void testInvalidDescriptionSize() {
         String exactly201Chars = "D".repeat(201);
-        Film film1 = new Film("Name 1", exactly201Chars, LocalDate.of(2000, 7, 27), 120);
+        Film film1 = new Film("Name 1", exactly201Chars,
+                LocalDate.of(2000, 7, 27), 120);
 
         ValidationException exception = assertThrows(ValidationException.class,
                 () -> filmService.validateFilm(film1));
@@ -103,7 +99,8 @@ public class FilmTest extends FilmorateApplicationTests {
 
     @Test
     public void testInvalidReleaseDate() {
-        Film film1 = new Film("Name 1", "Description 1", LocalDate.of(1000, 7, 27), 120);
+        Film film1 = new Film("Name 1", "Description 1",
+                LocalDate.of(1000, 7, 27), 120);
 
         Exception exception = assertThrows(ValidationException.class,
                 () -> filmService.validateFilm(film1));
@@ -113,7 +110,8 @@ public class FilmTest extends FilmorateApplicationTests {
 
     @Test
     public void testInvalidBirthday() {
-        Film film1 = new Film("Name 1", "Description 1", LocalDate.of(2000, 7, 27), -15);
+        Film film1 = new Film("Name 1", "Description 1",
+                LocalDate.of(2000, 7, 27), -15);
 
         Exception exception = assertThrows(ValidationException.class,
                 () -> filmService.validateFilm(film1));
