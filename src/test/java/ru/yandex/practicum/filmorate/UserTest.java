@@ -30,15 +30,8 @@ public class UserTest extends FilmorateApplicationTests {
         mockMvc.perform(get("/user"))
                 .andExpect(status().isOk())
                 .andExpect(content().json("""
-                        [
-                        	{
-                        		"id": 1,
-                        		"email": "email1@yandex.ru",
-                        		"login": "user1",
-                        		"name": "Ян",
-                        		"birthday": "1996-12-05"
-                        	}
-                        ]
+                        [{"id": 1,"email": "email1@yandex.ru","login": "user1",
+                        		"name": "Ян","birthday": "1996-12-05"}]
                         """));
     }
 
@@ -48,12 +41,8 @@ public class UserTest extends FilmorateApplicationTests {
         mockMvc.perform(post("/user")
                         .contentType(APPLICATION_JSON)
                         .content("""
-                                 	{
-                                		"email": "email1@yandex.ru",
-                                 		"login": "user1",
-                                 		"name": "Ян",
-                                 		"birthday": "1996-12-05"
-                                 	}
+                                 	{"email": "email1@yandex.ru","login": "user1",
+                                 		"name": "Ян","birthday": "1996-12-05"}
                                 """))
                 .andExpect(status().isCreated());
         assertEquals(1, userService.getAllUsers().getBody().size());
@@ -67,13 +56,8 @@ public class UserTest extends FilmorateApplicationTests {
         mockMvc.perform(patch("/user")
                         .contentType(APPLICATION_JSON)
                         .content("""
-                                {
-                                	"id": 1,
-                                	"email": "updateemail1@yandex.ru",
-                                	"login": "user1",
-                                	"name": "Ян",
-                                	"birthday": "1996-12-05"
-                                }
+                                {"id": 1,"email": "updateemail1@yandex.ru","login": "user1",
+                                	"name": "Ян","birthday": "1996-12-05"}
                                 """))
                 .andExpect(status().isOk());
         User updateUser = Objects.requireNonNull(userService.getAllUsers().getBody()).getFirst();

@@ -30,12 +30,8 @@ public class FilmTest extends FilmorateApplicationTests {
         mockMvc.perform(get("/film"))
                 .andExpect(status().isOk())
                 .andExpect(content().json("""
-                        [{"id": 1,
-                        		"name": "Name 1",
-                        		"description": "Description 1",
-                        		"releaseDate": "2000-07-27",
-                        		"duration": 120
-                        	}]
+                        [{"id": 1,"name": "Name 1","description": "Description 1",
+                        "releaseDate": "2000-07-27","duration": 120}]
                         """));
     }
 
@@ -59,13 +55,8 @@ public class FilmTest extends FilmorateApplicationTests {
         mockMvc.perform(patch("/film")
                         .contentType(APPLICATION_JSON)
                         .content("""
-                                	{
-                                	"id": 1,
-                                		"name": "new name 1",
-                                		"description": "new description 1",
-                                		"releaseDate": "2000-07-27",
-                                		"duration": 120
-                                		}
+                                	{"id": 1,"name": "new name 1","description": "new description 1",
+                                		"releaseDate": "2000-07-27","duration": 120}
                                 """))
                 .andExpect(status().isOk());
         Film updateFilm = Objects.requireNonNull(filmService.getAllFilms().getBody()).getFirst();
