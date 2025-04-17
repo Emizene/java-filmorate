@@ -41,7 +41,7 @@ public class FilmTest extends FilmorateApplicationTests {
         mockMvc.perform(post("/film")
                         .contentType(APPLICATION_JSON)
                         .content("""
-                                {"id":1,"name":"Новое Название 1","description":"Новое Описание 1",
+                                "id":1,"name":"Новое Название 1","description":"Новое Описание 1",
                                 "releaseDate":"2000-07-27","duration":120}
                                 """))
                 .andExpect(status().isCreated());
