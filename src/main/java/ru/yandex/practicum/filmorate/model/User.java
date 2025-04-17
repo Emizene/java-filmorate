@@ -31,5 +31,6 @@ public class User {
         this.birthday = birthday;
     }
 
-    public User(){}
+    public User() {
+    }
 }
