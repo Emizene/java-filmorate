@@ -67,7 +67,7 @@ public class UserTest extends FilmorateApplicationTests {
         ValidationException exception = assertThrows(ValidationException.class,
                 () -> userService.validateUser(user1));
 
-        assertEquals("Email должен содержать @", exception.getMessage());
+        assertEquals("Email является некорректным", exception.getMessage());
     }
 
     @Test
