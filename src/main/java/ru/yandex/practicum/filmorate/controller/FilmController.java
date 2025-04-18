@@ -27,7 +27,7 @@ public class FilmController {
      return filmService.addFilm(film);
     }
 
-    @PatchMapping
+    @PutMapping
     public ResponseEntity<Film> updateFilm(@Valid @RequestBody Film film) {
         return filmService.updateFilm(film);
     }

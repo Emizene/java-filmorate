@@ -27,7 +27,7 @@ public class UserController {
         return userService.createUser(user);
     }
 
-    @PatchMapping
+    @PutMapping
     public ResponseEntity<User> updateUser(@Valid @RequestBody User user) {
         return userService.updateUser(user);
     }

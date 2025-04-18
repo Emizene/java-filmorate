@@ -50,7 +50,7 @@ public class FilmTest extends FilmorateApplicationTests {
         Film film1 = new Film("Name 1", "Description 1",
                 LocalDate.of(2000, 7, 27), 120);
         filmService.addFilm(film1);
-        mockMvc.perform(patch("/films")
+        mockMvc.perform(put("/films")
                         .contentType(APPLICATION_JSON)
                         .content("{\"id\": 1,\"name\": \"new name 1\",\"description\": \"new description 1\",\"releaseDate\": \"2000-07-27\",\"duration\": 120}"))
                 .andExpect(status().isOk());
