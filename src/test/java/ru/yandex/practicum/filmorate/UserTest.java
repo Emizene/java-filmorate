@@ -40,10 +40,7 @@ public class UserTest extends FilmorateApplicationTests {
         assertEquals(0, Objects.requireNonNull(userService.getAllUsers().getBody()).size());
         mockMvc.perform(post("/user")
                         .contentType(APPLICATION_JSON)
-                        .content("""
-                                 	{"email": "email1@yandex.ru","login": "user1",
-                                 		"name": "Ян","birthday": "1996-12-05"}
-                                """))
+                        .content("{\"email\": \"email1@yandex.ru\",\"login\": \"user1\",\"name\": \"Ян\",\"birthday\": \"1996-12-05\"}"))
                 .andExpect(status().isCreated());
         assertEquals(1, userService.getAllUsers().getBody().size());
     }
@@ -55,10 +52,7 @@ public class UserTest extends FilmorateApplicationTests {
         userService.createUser(user1);
         mockMvc.perform(patch("/user")
                         .contentType(APPLICATION_JSON)
-                        .content("""
-                                {"id": 1,"email": "updateemail1@yandex.ru","login": "user1",
-                                	"name": "Ян","birthday": "1996-12-05"}
-                                """))
+                        .content(" {\"id\": 1,\"email\": \"updateemail1@yandex.ru\",\"login\": \"user1\",\"name\": \"Ян\",\"birthday\": \"1996-12-05\"}"))
                 .andExpect(status().isOk());
         User updateUser = Objects.requireNonNull(userService.getAllUsers().getBody()).getFirst();
         assertEquals("updateemail1@yandex.ru", updateUser.getEmail());
