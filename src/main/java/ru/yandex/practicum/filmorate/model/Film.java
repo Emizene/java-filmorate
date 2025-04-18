@@ -1,13 +1,17 @@
 package ru.yandex.practicum.filmorate.model;
 
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
 
 @Data
 @AllArgsConstructor
+@Valid
+@NoArgsConstructor
 public class Film {
     private Long id;
 
@@ -30,6 +34,4 @@ public class Film {
         this.duration = duration;
     }
 
-    public Film() {
-    }
 }

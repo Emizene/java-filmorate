@@ -61,26 +61,20 @@ public class FilmTest extends FilmorateApplicationTests {
     }
 
     @Test
-    public void testInvalidName() {
-        Film film1 = new Film("", "Description 1",
-                LocalDate.of(2000, 7, 27), 120);
-
-        ValidationException exception = assertThrows(ValidationException.class,
-                () -> filmService.validateFilm(film1));
-
-        assertEquals("Это поле обязательно для заполнения", exception.getMessage());
+    public void testInvalidName() throws Exception {
+        mockMvc.perform(put("/films")
+                        .contentType(APPLICATION_JSON)
+                        .content("{\"name\": \"\",\"description\": \"Description 1\",\"releaseDate\": \"2000-07-27\",\"duration\": 120}"))
+                .andExpect(status().isBadRequest());
     }
 
     @Test
-    public void testInvalidDescriptionSize() {
+    public void testInvalidDescriptionSize() throws Exception {
         String exactly201Chars = "D".repeat(201);
-        Film film1 = new Film("Name 1", exactly201Chars,
-                LocalDate.of(2000, 7, 27), 120);
-
-        ValidationException exception = assertThrows(ValidationException.class,
-                () -> filmService.validateFilm(film1));
-
-        assertEquals("Максимальная длина описания — 200 символов", exception.getMessage());
+        mockMvc.perform(post("/films")
+                        .contentType(APPLICATION_JSON)
+                        .content("{\"id\":1,\"name\":\"Name 1\",\"description\":" + exactly201Chars + ",\"releaseDate\":\"2000-07-27\",\"duration\":120}"))
+                .andExpect(status().isBadRequest());
     }
 
     @Test
@@ -95,14 +89,11 @@ public class FilmTest extends FilmorateApplicationTests {
     }
 
     @Test
-    public void testInvalidBirthday() {
-        Film film1 = new Film("Name 1", "Description 1",
-                LocalDate.of(2000, 7, 27), -15);
-
-        Exception exception = assertThrows(ValidationException.class,
-                () -> filmService.validateFilm(film1));
-
-        assertEquals("Продолжительность фильма должна быть положительным числом", exception.getMessage());
+    public void testInvalidBirthday() throws Exception {
+        mockMvc.perform(put("/films")
+                        .contentType(APPLICATION_JSON)
+                        .content("{\"name\": \"\",\"description\": \"Description 1\",\"releaseDate\": \"2000-07-27\",\"duration\": -15}"))
+                .andExpect(status().isBadRequest());
     }
 
 }

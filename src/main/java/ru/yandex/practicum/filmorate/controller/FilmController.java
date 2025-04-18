@@ -12,6 +12,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/films")
 @RequiredArgsConstructor
+@Valid
 public class FilmController {
     private final FilmService filmService;
 

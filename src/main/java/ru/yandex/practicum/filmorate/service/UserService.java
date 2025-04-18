@@ -1,9 +1,5 @@
 package ru.yandex.practicum.filmorate.service;
 
-import jakarta.validation.ConstraintViolation;
-import jakarta.validation.Validation;
-import jakarta.validation.Validator;
-import jakarta.validation.ValidatorFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -16,19 +12,6 @@ import java.util.*;
 public class UserService {
 
     private final List<User> allUsers = new ArrayList<>();
-    private final Validator validator;
-
-    public UserService() {
-        ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
-        this.validator = factory.getValidator();
-    }
-
-    public void validateUser(User user) {
-        Set<ConstraintViolation<User>> violations = validator.validate(user);
-        if (!violations.isEmpty()) {
-            throw new ValidationException(violations.iterator().next().getMessage());
-        }
-    }
 
     public ResponseEntity<List<User>> getAllUsers() {
         return ResponseEntity.ok(allUsers);

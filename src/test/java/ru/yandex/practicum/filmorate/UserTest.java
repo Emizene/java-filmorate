@@ -2,14 +2,12 @@ package ru.yandex.practicum.filmorate;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 
 import java.time.LocalDate;
 import java.util.Objects;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -60,58 +58,43 @@ public class UserTest extends FilmorateApplicationTests {
     }
 
     @Test
-    public void testInvalidEmail() {
-        User user1 = new User("email", "login1", "name",
-                LocalDate.of(2000, 1, 16));
-
-        ValidationException exception = assertThrows(ValidationException.class,
-                () -> userService.validateUser(user1));
-
-        assertEquals("Email является некорректным", exception.getMessage());
+    public void testInvalidEmail() throws Exception {
+        mockMvc.perform(post("/users")
+                        .contentType(APPLICATION_JSON)
+                        .content("{\"email\": \"email\",\"login\": \"login1\",\"name\": \"name\",\"birthday\": \"2000-1-16\"}"))
+                .andExpect(status().isBadRequest());
     }
 
     @Test
-    public void testInvalidEmptyEmail() {
-        User user1 = new User("", "login1", "name",
-                LocalDate.of(2000, 1, 16));
-
-        ValidationException exception = assertThrows(ValidationException.class,
-                () -> userService.validateUser(user1));
-
-        assertEquals("Это поле обязательно для заполнения", exception.getMessage());
+    public void testInvalidEmptyEmail() throws Exception {
+        mockMvc.perform(post("/users")
+                        .contentType(APPLICATION_JSON)
+                        .content("{\"email\": \"\",\"login\": \"login1\",\"name\": \"name\",\"birthday\": \"2000-1-16\"}"))
+                .andExpect(status().isBadRequest());
     }
 
     @Test
-    public void testInvalidLogin() {
-        User user1 = new User("email1@yandex.ru", "login 1", "name",
-                LocalDate.of(2000, 1, 1));
-
-        ValidationException exception = assertThrows(ValidationException.class,
-                () -> userService.validateUser(user1));
-
-        assertEquals("Логин не должен содержать пробелы", exception.getMessage());
+    public void testInvalidLogin() throws Exception {
+        mockMvc.perform(post("/users")
+                        .contentType(APPLICATION_JSON)
+                        .content("{\"email\": \"email1@yandex.ru\",\"login\": \"login 1\",\"name\": \"name\",\"birthday\": \"2000-1-11\"}"))
+                .andExpect(status().isBadRequest());
     }
 
     @Test
-    public void testInvalidEmptyLogin() {
-        User user1 = new User("email1@yandex.ru", "", "name",
-                LocalDate.of(2000, 1, 1));
-
-        ValidationException exception = assertThrows(ValidationException.class,
-                () -> userService.validateUser(user1));
-
-        assertEquals("Это поле обязательно для заполнения", exception.getMessage());
+    public void testInvalidEmptyLogin() throws Exception {
+        mockMvc.perform(post("/users")
+                        .contentType(APPLICATION_JSON)
+                        .content("{\"email\": \"email\",\"login\": \"\",\"name\": \"name\",\"birthday\": \"2000-1-16\"}"))
+                .andExpect(status().isBadRequest());
     }
 
     @Test
-    public void testInvalidBirthday() {
-        User user1 = new User("email1@yandex.ru", "login1", "name",
-                LocalDate.of(2026, 1, 16));
-
-        ValidationException exception = assertThrows(ValidationException.class,
-                () -> userService.validateUser(user1));
-
-        assertEquals("Дата рождения не может быть в будущем", exception.getMessage());
+    public void testInvalidBirthday() throws Exception {
+        mockMvc.perform(post("/users")
+                        .contentType(APPLICATION_JSON)
+                        .content("{\"email\": \"email\",\"login\": \"\",\"name\": \"name\",\"birthday\": \"2026-1-16\"}"))
+                .andExpect(status().isBadRequest());
     }
 }
 
