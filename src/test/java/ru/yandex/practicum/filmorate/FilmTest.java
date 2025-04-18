@@ -55,10 +55,7 @@ public class FilmTest extends FilmorateApplicationTests {
         filmService.addFilm(film1);
         mockMvc.perform(patch("/film")
                         .contentType(APPLICATION_JSON)
-                        .content("""
-                                {"id": 1,"name": "new name 1","description": "new description 1",
-                                "releaseDate": "2000-07-27","duration": 120}
-                                """))
+                        .content("{\"id\": 1,\"name\": \"new name 1\",\"description\": \"new description 1\",\"releaseDate\": \"2000-07-27\",\"duration\": 120}"))
                 .andExpect(status().isOk());
         Film updateFilm = Objects.requireNonNull(filmService.getAllFilms().getBody()).getFirst();
         assertEquals("new name 1", updateFilm.getName());
