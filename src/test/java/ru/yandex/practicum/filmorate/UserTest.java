@@ -27,7 +27,7 @@ public class UserTest extends FilmorateApplicationTests {
         User user1 = new User("email1@yandex.ru", "user1", "Ян",
                 LocalDate.of(1996, 12, 5));
         userService.createUser(user1);
-        mockMvc.perform(get("/user"))
+        mockMvc.perform(get("/users"))
                 .andExpect(status().isOk())
                 .andExpect(content().json("""
                         [{"id": 1,"email": "email1@yandex.ru","login": "user1",
@@ -38,7 +38,7 @@ public class UserTest extends FilmorateApplicationTests {
     @Test
     public void testSuccessCreateUser() throws Exception {
         assertEquals(0, Objects.requireNonNull(userService.getAllUsers().getBody()).size());
-        mockMvc.perform(post("/user")
+        mockMvc.perform(post("/users")
                         .contentType(APPLICATION_JSON)
                         .content("{\"email\": \"email1@yandex.ru\",\"login\": \"user1\",\"name\": \"Ян\",\"birthday\": \"1996-12-05\"}"))
                 .andExpect(status().isCreated());
@@ -50,7 +50,7 @@ public class UserTest extends FilmorateApplicationTests {
         User user1 = new User("email1@yandex.ru", "user1", "Ян",
                 LocalDate.of(1996, 12, 5));
         userService.createUser(user1);
-        mockMvc.perform(patch("/user")
+        mockMvc.perform(patch("/users")
                         .contentType(APPLICATION_JSON)
                         .content(" {\"id\": 1,\"email\": \"updateemail1@yandex.ru\",\"login\": \"user1\",\"name\": \"Ян\",\"birthday\": \"1996-12-05\"}"))
                 .andExpect(status().isOk());

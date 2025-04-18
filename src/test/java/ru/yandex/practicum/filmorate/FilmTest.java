@@ -27,7 +27,7 @@ public class FilmTest extends FilmorateApplicationTests {
         Film film1 = new Film("Name 1", "Description 1",
                 LocalDate.of(2000, 7, 27), 120);
         filmService.addFilm(film1);
-        mockMvc.perform(get("/film"))
+        mockMvc.perform(get("/films"))
                 .andExpect(status().isOk())
                 .andExpect(content().json("""
                         [{"id": 1,"name": "Name 1","description": "Description 1",
@@ -38,7 +38,7 @@ public class FilmTest extends FilmorateApplicationTests {
     @Test
     public void testSuccessAddFilm() throws Exception {
         assertEquals(0, Objects.requireNonNull(filmService.getAllFilms().getBody()).size());
-        mockMvc.perform(post("/film")
+        mockMvc.perform(post("/films")
                         .contentType(APPLICATION_JSON)
                         .content("{\"id\":1,\"name\":\"Новое Название 1\",\"description\":\"Новое Описание 1\",\"releaseDate\":\"2000-07-27\",\"duration\":120}"))
                 .andExpect(status().isCreated());
@@ -50,7 +50,7 @@ public class FilmTest extends FilmorateApplicationTests {
         Film film1 = new Film("Name 1", "Description 1",
                 LocalDate.of(2000, 7, 27), 120);
         filmService.addFilm(film1);
-        mockMvc.perform(patch("/film")
+        mockMvc.perform(patch("/films")
                         .contentType(APPLICATION_JSON)
                         .content("{\"id\": 1,\"name\": \"new name 1\",\"description\": \"new description 1\",\"releaseDate\": \"2000-07-27\",\"duration\": 120}"))
                 .andExpect(status().isOk());
