@@ -12,7 +12,7 @@ public class User {
     private Long id;
 
     @NotEmpty(message = "Это поле обязательно для заполнения")
-    @Email(message = "Email должен содержать @")
+    @Email(message = "Email является некорректным")
     private String email;
 
     @NotEmpty(message = "Это поле обязательно для заполнения")
