@@ -31,4 +31,24 @@ public class UserController {
         return userService.updateUser(user);
     }
 
+    @PutMapping("/{userId}/friends/{friendId}")
+    public ResponseEntity<Void> addFriend(@PathVariable Long userId, @PathVariable Long friendId) {
+            return userService.addFriend(userId, friendId);
+    }
+
+    @DeleteMapping("/{userId}/friends/{friendId}")
+    public ResponseEntity<Void> deleteFriend(@PathVariable Long userId, @PathVariable Long friendId) {
+        return userService.deleteFriend(userId, friendId);
+    }
+
+    @GetMapping("/{userId}/friends")
+    public ResponseEntity<List<User>> getFriends(@PathVariable Long userId) {
+        return userService.getFriends(userId);
+    }
+
+    @GetMapping("/{user1Id}/friends/common/{user2Id}")
+    public ResponseEntity<List<User>> getCommonFriends(@PathVariable Long user1Id, @PathVariable Long user2Id ) {
+        return userService.getCommonFriends(user1Id, user2Id);
+    }
+
 }
