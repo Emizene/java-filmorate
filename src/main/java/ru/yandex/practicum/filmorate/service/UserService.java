@@ -60,7 +60,7 @@ public class UserService {
                 .findFirst()
                 .orElseThrow(() -> {
                     log.error("Пользователь с ID {} не найден для обновления", user.getId());
-                    return new ValidationException("Пользователь с id " + user.getId() + " не найден");
+                    return new NotFoundException("Пользователь с id " + user.getId() + " не найден");
                 });
 
         if (user.getLogin() != null && !updatedUser.getLogin().equals(user.getLogin())) {
@@ -133,7 +133,6 @@ public class UserService {
 
         user.getFriends().remove(friendId);
         friend.getFriends().remove(userId);
-        userStorage.deleteUser(friendId);
 
         log.info("Пользователь {} удален из друзей у {}", friendId, userId);
         return ResponseEntity.ok().build();
@@ -173,7 +172,7 @@ public class UserService {
                 try {
                     friends.add(userStorage.getUserById(friendId));
                 } catch (NotFoundException e) {
-                    log.warn("Друг с ID {} не найден, пропуск", friendId);
+                    log.warn("Друг с ID {} не найден", friendId);
                 }
             }
 

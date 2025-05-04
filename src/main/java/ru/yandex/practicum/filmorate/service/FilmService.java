@@ -67,7 +67,7 @@ public class FilmService {
                 .findFirst()
                 .orElseThrow(() -> {
                     log.error("Фильм не найден: ID={}", film.getId());
-                    return new ValidationException("Фильм с id " + film.getId() + " не найден");
+                    return new NotFoundException("Фильм с id " + film.getId() + " не найден");
                 });
 
         if (film.getName() != null && !updateFilm.getName().equals(film.getName())) {
