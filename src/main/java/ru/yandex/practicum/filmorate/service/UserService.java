@@ -164,24 +164,19 @@ public class UserService {
             return ResponseEntity.badRequest().build();
         }
 
-        try {
-            User user = userStorage.getUserById(userId);
+        User user = userStorage.getUserById(userId);
 
-            List<User> friends = new ArrayList<>();
-            for (Long friendId : user.getFriends()) {
-                try {
-                    friends.add(userStorage.getUserById(friendId));
-                } catch (NotFoundException e) {
-                    log.warn("Друг с ID {} не найден", friendId);
-                }
+        List<User> friends = new ArrayList<>();
+        for (Long friendId : user.getFriends()) {
+            try {
+                friends.add(userStorage.getUserById(friendId));
+            } catch (NotFoundException e) {
+                log.warn("Друг с ID {} не найден", friendId);
             }
-
-            log.info("Найдено {} друзей для пользователя {}", friends.size(), userId);
-            return ResponseEntity.ok(friends);
-        } catch (NotFoundException e) {
-            log.error("Пользователь с ID {} не найден", userId);
-            return ResponseEntity.notFound().build();
         }
+
+        log.info("Найдено {} друзей для пользователя {}", friends.size(), userId);
+        return ResponseEntity.ok(friends);
     }
 
     public void deleteAllUsers() {
