@@ -7,8 +7,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
+import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.storage.user.InMemoryUserStorage;
+import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -17,7 +18,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 @Service
 public class UserService {
-    private final InMemoryUserStorage userStorage;
+    private final UserStorage userStorage;
 
     public ResponseEntity<List<User>> getAllUsers() {
         log.debug("Запрос всех пользователей");
@@ -41,8 +42,6 @@ public class UserService {
             log.warn("Этот логин уже используется: {}", user.getLogin());
             throw new ValidationException("Этот логин уже используется");
         }
-
-        user.setId(getNextId());
 
         if (user.getName() == null || user.getName().isBlank()) {
             user.setName(user.getLogin());
@@ -159,19 +158,23 @@ public class UserService {
     public ResponseEntity<List<User>> getFriends(Long userId) {
         log.debug("Запрос друзей пользователя {}", userId);
 
-        if (userId == null) {
-            log.warn("Попытка запроса друзей с userId=null");
-            return ResponseEntity.badRequest().build();
+        if (userId == null || userId < 0) {
+            throw new NotFoundException("Некорректный ID пользователя");
         }
 
         User user = userStorage.getUserById(userId);
+        if (user == null) {
+            throw new NotFoundException("Пользователь с ID %s не найден".formatted(userId));
+        }
 
         List<User> friends = new ArrayList<>();
         for (Long friendId : user.getFriends()) {
-            try {
-                friends.add(userStorage.getUserById(friendId));
-            } catch (NotFoundException e) {
-                log.warn("Друг с ID {} не найден", friendId);
+            friends.add(userStorage.getUserById(friendId));
+            User friend = userStorage.getUserById(friendId);
+            if (friend != null) {
+                friends.add(friend);
+            } else {
+                throw new NotFoundException("Друг с ID %s не найден".formatted(friendId));
             }
         }
 
@@ -179,17 +182,22 @@ public class UserService {
         return ResponseEntity.ok(friends);
     }
 
+    public ResponseEntity<User> getUserById(Long userId) {
+        if (userId == null || userId < 0) {
+            throw new ValidationException("Некорректный ID пользователя");
+        }
+
+        User user = userStorage.getUserById(userId);
+        if (user == null) {
+            throw new NotFoundException("Пользователь с ID %s не найден".formatted(userId));
+        }
+        log.info("Найден пользователь: ID={}, Логин={}", userId, user.getLogin());
+        return ResponseEntity.ok(user);
+    }
+
     public void deleteAllUsers() {
         log.warn("Выполняется запрос на удаление всех пользователей");
         userStorage.deleteAll();
         log.info("Все пользователи удалены");
-    }
-
-    private long getNextId() {
-        long currentMaxId = userStorage.getAllUsers().stream()
-                .mapToLong(User::getId)
-                .max()
-                .orElse(0);
-        return ++currentMaxId;
     }
 }

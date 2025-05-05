@@ -51,4 +51,9 @@ public class UserController {
         return userService.getCommonFriends(user1Id, user2Id);
     }
 
+    @GetMapping("/{userId}")
+    public ResponseEntity<User> gerUserById(@PathVariable Long userId) {
+        return userService.getUserById(userId);
+    }
+
 }

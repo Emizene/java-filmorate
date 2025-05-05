@@ -8,7 +8,7 @@ import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.storage.film.InMemoryFilmStorage;
+import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.user.InMemoryUserStorage;
 
 import java.time.LocalDate;
@@ -19,7 +19,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 @Service
 public class FilmService {
-    private final InMemoryFilmStorage filmStorage;
+    private final FilmStorage filmStorage;
     private final InMemoryUserStorage userStorage;
     private static final LocalDate MIN_RELEASE_DATE = LocalDate.of(1895, 12, 28);
 
@@ -52,7 +52,6 @@ public class FilmService {
             throw new ValidationException("Дата релиза не может быть раньше 28 декабря 1895 года");
         }
 
-        film.setId(getNextId());
         filmStorage.addFilm(film);
         log.info("Фильм успешно добавлен: ID={}, Название={}", film.getId(), film.getName());
         return ResponseEntity.status(HttpStatus.CREATED).body(film);
@@ -181,17 +180,23 @@ public class FilmService {
         return ResponseEntity.ok(popularFilms);
     }
 
+    public ResponseEntity<Film> getFilmById(Long filmId) {
+        if (filmId == null || filmId < 0) {
+            throw new ValidationException("Некорректный ID фильма");
+        }
+
+        Film film = filmStorage.getFilmById(filmId);
+        if (film == null) {
+            throw new NotFoundException("Фильм с ID %s не найден".formatted(filmId));
+        }
+        log.info("Найден фильм: ID={}, Название={}", filmId, film.getName());
+        return ResponseEntity.ok(film);
+    }
+
     public void deleteAllFilms() {
-        log.warn("Удаление всех фильмов!");
+        log.warn("Удаление всех фильмов");
         filmStorage.deleteAll();
         log.info("Все фильмы удалены");
     }
 
-    private long getNextId() {
-        long currentMaxId = filmStorage.getAllFilms().stream()
-                .mapToLong(Film::getId)
-                .max()
-                .orElse(0);
-        return ++currentMaxId;
-    }
 }
