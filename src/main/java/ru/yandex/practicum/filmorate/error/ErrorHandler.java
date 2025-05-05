@@ -6,6 +6,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import ru.yandex.practicum.filmorate.exception.InternalServerErrorException;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 
@@ -13,12 +14,9 @@ import ru.yandex.practicum.filmorate.exception.ValidationException;
 @RestControllerAdvice
 @SuppressWarnings("unused")
 public class ErrorHandler {
-    @ExceptionHandler({
-            ValidationException.class,
-            MethodArgumentNotValidException.class
-    })
+    @ExceptionHandler(ValidationException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ErrorResponse handleIncorrectParameter(final Exception e) {
+    public ErrorResponse handleIncorrectParameter(final ValidationException e) {
         log.error("Ошибка валидации.", e);
         return new ErrorResponse("Ошибка валидации.", e.getMessage());
     }
@@ -30,9 +28,9 @@ public class ErrorHandler {
         return new ErrorResponse("Ошибка с входным параметром.", e.getMessage());
     }
 
-    @ExceptionHandler
+    @ExceptionHandler(InternalServerErrorException.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    public ErrorResponse handleInternalServerError(final Exception e) {
+    public ErrorResponse handleInternalServerError(final InternalServerErrorException e) {
         log.error("Ошибка сервера.", e);
         return new ErrorResponse("Ошибка сервера.", e.getMessage());
     }
