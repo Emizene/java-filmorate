@@ -168,7 +168,6 @@ public class UserService {
 
         List<User> friends = new ArrayList<>();
         for (Long friendId : user.getFriends()) {
-            friends.add(userStorage.getUserById(friendId));
             User friend = userStorage.getUserById(friendId);
             if (friend != null) {
                 friends.add(friend);
