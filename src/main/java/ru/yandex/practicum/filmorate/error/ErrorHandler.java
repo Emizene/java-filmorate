@@ -10,15 +10,16 @@ import ru.yandex.practicum.filmorate.exception.ValidationException;
 
 @Slf4j
 @RestControllerAdvice
+@SuppressWarnings("unused")
 public class ErrorHandler {
-    @ExceptionHandler
+    @ExceptionHandler(ValidationException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorResponse handleIncorrectParameter(final ValidationException e) {
         log.error("Ошибка валидации.", e);
         return new ErrorResponse("Ошибка валидации.", e.getMessage());
     }
 
-    @ExceptionHandler
+    @ExceptionHandler(NotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ErrorResponse handleNotFoundException(final NotFoundException e) {
         log.error("Ошибка с входным параметром.", e);
