@@ -30,4 +30,24 @@ public class FilmController {
     public ResponseEntity<Film> updateFilm(@Valid @RequestBody Film film) {
         return filmService.updateFilm(film);
     }
+
+    @PutMapping("/{filmId}/like/{userId}")
+    public ResponseEntity<Void> addLike(@PathVariable Long filmId, @PathVariable Long userId) {
+        return filmService.addLike(filmId, userId);
+    }
+
+    @DeleteMapping("/{filmId}/like/{userId}")
+    public ResponseEntity<Void> deleteLike(@PathVariable Long filmId, @PathVariable Long userId) {
+        return filmService.deleteLike(filmId, userId);
+    }
+
+    @GetMapping("/popular")
+    public ResponseEntity<List<Film>> getPopularFilms(@RequestParam(defaultValue = "10") int count) {
+        return filmService.getPopularFilms(count);
+    }
+
+    @GetMapping("/{filmId}")
+    public ResponseEntity<Film> getFilmById(@PathVariable Long filmId) {
+        return filmService.getFilmById(filmId);
+    }
 }
