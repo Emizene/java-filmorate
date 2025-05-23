@@ -1,6 +1,8 @@
 # java-filmorate
 Template repository for Filmorate project.
 
+![FilmorateScheme](https://github.com/user-attachments/assets/e4a8cc40-60f4-4387-ab3a-f412c6b868e4)
+
 Некоторые примеры запросов CRUD операций для таблицы films.
 
 Create:
