@@ -1,8 +1,6 @@
 # java-filmorate
 Template repository for Filmorate project.
 
-![db-filmorate-scheme](./FilmorateScheme.png)
-
 Некоторые примеры запросов CRUD операций для таблицы films.
 
 Create:
