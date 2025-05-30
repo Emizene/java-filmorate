@@ -61,6 +61,11 @@ public class FilmService {
             throw new ValidationException("Дата релиза не может быть раньше 28 декабря 1895 года");
         }
 
+        if (film.getMpa() == null || film.getMpa().getId() < 1 || film.getMpa().getId() > 5) {
+            throw new NotFoundException("Mpa рейтинга с ID %s не существует"
+                    .formatted(film.getMpa() != null ? film.getMpa().getId() : "null"));
+        }
+
         Film entity = filmMapper.toEntity(film);
         filmRepository.save(entity);
         log.info("Фильм успешно добавлен: ID={}, Название={}", entity.getId(), entity.getName());
