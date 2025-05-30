@@ -13,6 +13,6 @@ public class ChangeFilmDto {
     private LocalDate releaseDate;
     private Integer duration;
     private MpaDto mpa;
-    private List<Long> genreId;
+    private List<GenreDto> genres;
     private List<Long> userWithLikesId;
 }

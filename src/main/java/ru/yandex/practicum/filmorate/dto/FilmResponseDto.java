@@ -13,6 +13,6 @@ public class FilmResponseDto {
     private LocalDate releaseDate;
     private Integer duration;
     private MpaDto mpa;
-    private List<GenreDto> genre;
+    private List<GenreDto> genres;
     private int likes;
 }

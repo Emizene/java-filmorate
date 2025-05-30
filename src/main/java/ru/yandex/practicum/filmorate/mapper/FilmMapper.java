@@ -8,6 +8,7 @@ import ru.yandex.practicum.filmorate.dao.GenreRepository;
 import ru.yandex.practicum.filmorate.dao.MpaRepository;
 import ru.yandex.practicum.filmorate.dto.ChangeFilmDto;
 import ru.yandex.practicum.filmorate.dto.FilmResponseDto;
+import ru.yandex.practicum.filmorate.dto.GenreDto;
 import ru.yandex.practicum.filmorate.dto.MpaDto;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
@@ -23,11 +24,12 @@ public abstract class FilmMapper {
     GenreRepository genreRepository;
 
     @Mapping(source = "mpa", target = "mpaRating", qualifiedByName = "mapMpaToEntity")
-//    @Mapping(source = "genreId", target = "genres", qualifiedByName = "mapGenre")
+    @Mapping(source = "genres", target = "genres", qualifiedByName = "mapGenre")
     public abstract Film toEntity(ChangeFilmDto changeFilmDto);
 
     @Mapping(target = "likes", expression = "java(film.getUsersWithLikes().size())")
     @Mapping(source = "mpaRating", target = "mpa")
+    @Mapping(source = "genres", target = "genres")
     public abstract FilmResponseDto toFilmDto(Film film);
 
     public abstract List<FilmResponseDto> toFilmDtoList(List<Film> film);
@@ -41,8 +43,8 @@ public abstract class FilmMapper {
     }
 
     @Named("mapGenre")
-    Genre mapGenre(Long genreId) {
-        return genreRepository.findById(genreId).orElse(null);
+    Genre mapGenre(GenreDto genres) {
+        return genreRepository.findById(genres.getId()).orElse(null);
     }
 
 }
