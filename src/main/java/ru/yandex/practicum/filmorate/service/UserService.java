@@ -1,14 +1,18 @@
 package ru.yandex.practicum.filmorate.service;
 
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.dao.UserRepository;
+import ru.yandex.practicum.filmorate.dto.ChangeUserDto;
+import ru.yandex.practicum.filmorate.dto.UserResponseDto;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
+import ru.yandex.practicum.filmorate.mapper.UserMapper;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -17,18 +21,22 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 @Service
 public class UserService {
-    private final UserStorage userStorage;
+    private final UserRepository userRepository;
+    private final UserMapper userMapper;
 
-    public ResponseEntity<List<User>> getAllUsers() {
+    public ResponseEntity<List<UserResponseDto>> getAllUsers() {
         log.debug("Запрос всех пользователей");
-        List<User> users = userStorage.getAllUsers();
+        List<UserResponseDto> users = userRepository.findAll().stream()
+                .map(userMapper::toUserDto)
+                .toList();
         log.info("Возвращено {} пользователей", users.size());
         return ResponseEntity.ok(users);
     }
 
-    public ResponseEntity<User> createUser(User user) {
+    public ResponseEntity<UserResponseDto> createUser(ChangeUserDto user) {
         log.debug("Создание нового пользователя: email={}, login={}", user.getEmail(), user.getLogin());
-        List<User> allUsers = userStorage.getAllUsers();
+        List<User> allUsers = userRepository.findAll().stream()
+                .toList();
         boolean emailExists = allUsers.stream()
                 .anyMatch(u -> u.getEmail().equalsIgnoreCase(user.getEmail()));
         if (emailExists) {
@@ -45,14 +53,18 @@ public class UserService {
         if (user.getName() == null || user.getName().isBlank()) {
             user.setName(user.getLogin());
         }
-        userStorage.createUser(user);
+
+        User entity = userMapper.toEntity(user);
+        userRepository.save(entity);
         log.info("Успешное создание пользователя: ID={}, login={}", user.getId(), user.getLogin());
-        return ResponseEntity.status(HttpStatus.CREATED).body(user);
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(userMapper.toUserDto(entity));
     }
 
-    public ResponseEntity<User> updateUser(User user) {
+    public ResponseEntity<UserResponseDto> updateUser(ChangeUserDto user) {
         log.debug("Обновление существующего пользователя с ID {}", user.getId());
-        List<User> allUsers = userStorage.getAllUsers();
+        List<User> allUsers = userRepository.findAll().stream()
+                .toList();
         User updatedUser = allUsers.stream()
                 .filter(u -> Objects.equals(u.getId(), user.getId()))
                 .findFirst()
@@ -87,11 +99,13 @@ public class UserService {
             updatedUser.setName(user.getName());
         }
 
-        userStorage.updateUser(updatedUser);
+        userRepository.save(updatedUser);
         log.info("Пользователь с ID {} успешно обновлен", user.getId());
-        return ResponseEntity.ok(updatedUser);
+
+        return ResponseEntity.ok().body(userMapper.toUserDto(updatedUser));
     }
 
+    @Transactional
     public ResponseEntity<Void> addFriend(Long userId, Long friendId) {
         log.debug("Попытка добавления друга {} пользователю {}", friendId, userId);
 
@@ -100,102 +114,100 @@ public class UserService {
             throw new NotFoundException("ID не был введен");
         }
 
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new NotFoundException("Пользователь с таким ID не найден" + userId));
+        User friend = userRepository.findById(friendId)
+                .orElseThrow(() -> new NotFoundException("Друг с таким ID не найден" + friendId));
+
         if (userId.equals(friendId)) {
             log.warn("Пользователь {} попытался добавить самого себя в друзья", userId);
             throw new ValidationException("Нельзя добавить самого себя в друзья");
         }
 
-        User user = userStorage.getUserById(userId);
-        User friend = userStorage.getUserById(friendId);
-
-        if (user.getFriends().contains(friendId)) {
+        if (user.getFriends().contains(friend)) {
             log.warn("Пользователь {} уже есть в друзьях у {}", friendId, userId);
             throw new ValidationException("Пользователь уже в друзьях");
         }
 
-        user.getFriends().add(friendId);
-        friend.getFriends().add(userId);
+        user.getFriends().add(friend);
 
-        userStorage.updateUser(user);
-        userStorage.updateUser(friend);
+        userRepository.save(user);
+        userRepository.save(friend);
 
         log.info("Пользователь {} успешно добавлен в друзья к {}", friendId, userId);
         return ResponseEntity.ok().build();
     }
 
+    @Transactional
     public ResponseEntity<Void> deleteFriend(Long userId, Long friendId) {
         log.debug("Попытка удаления друга {} у пользователя {}", friendId, userId);
 
-        User user = userStorage.getUserById(userId);
-        User friend = userStorage.getUserById(friendId);
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new NotFoundException("Пользователь с ID %s не найден".formatted(userId)));
+        User friend = userRepository.findById(friendId)
+                .orElseThrow(() -> new NotFoundException("Пользователь с ID %s не найден".formatted(friendId)));
 
-        user.getFriends().remove(friendId);
-        friend.getFriends().remove(userId);
+        user.getFriends().remove(friend);
+        friend.getFriends().remove(user);
 
         log.info("Пользователь {} удален из друзей у {}", friendId, userId);
         return ResponseEntity.ok().build();
     }
 
-    public ResponseEntity<List<User>> getCommonFriends(Long user1Id, Long user2Id) {
+    public ResponseEntity<List<UserResponseDto>> getCommonFriends(Long user1Id, Long user2Id) {
         log.debug("Поиск общих друзей пользователей {} и {}", user1Id, user2Id);
 
-        Set<Long> user1Friends = userStorage.getUserById(user1Id).getFriends();
-        Set<Long> user2Friends = userStorage.getUserById(user2Id).getFriends();
+        Set<User> user1Friends = userRepository.findById(user1Id)
+                .orElseThrow(() -> new NotFoundException("Пользователь " + user1Id + " не найден"))
+                .getFriends();
+        Set<User> user2Friends = userRepository.findById(user2Id)
+                .orElseThrow(() -> new NotFoundException("Пользователь " + user2Id + " не найден"))
+                .getFriends();
 
-        List<Long> commonFriends = user1Friends.stream()
+        List<User> commonFriends = user1Friends.stream()
                 .filter(user2Friends::contains)
                 .toList();
 
         List<User> commonFriendUsers = commonFriends.stream()
-                .map(userStorage::getUserById)
+                .map(it -> userRepository.findById(it.getId()))
+                .map(Optional::orElseThrow)
                 .collect(Collectors.toList());
 
         log.info("Найдено {} общих друзей между {} и {}", commonFriendUsers.size(), user1Id, user2Id);
-        return ResponseEntity.ok(commonFriendUsers);
+        return ResponseEntity.ok(userMapper.toUserDtoList(commonFriendUsers));
     }
 
-    public ResponseEntity<List<User>> getFriends(Long userId) {
+    public ResponseEntity<List<UserResponseDto>> getFriends(Long userId) {
         log.debug("Запрос друзей пользователя {}", userId);
 
         if (userId == null || userId < 0) {
             throw new NotFoundException("Некорректный ID пользователя");
         }
 
-        User user = userStorage.getUserById(userId);
-        if (user == null) {
-            throw new NotFoundException("Пользователь с ID %s не найден".formatted(userId));
-        }
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new NotFoundException("Пользователь " + userId + " не найден"));
 
-        List<User> friends = new ArrayList<>();
-        for (Long friendId : user.getFriends()) {
-            User friend = userStorage.getUserById(friendId);
-            if (friend != null) {
-                friends.add(friend);
-            } else {
-                throw new NotFoundException("Друг с ID %s не найден".formatted(friendId));
-            }
-        }
+        List<User> friends = new ArrayList<>(
+                Optional.ofNullable(user.getFriends())
+                        .orElse(Collections.emptySet())
+        );
 
         log.info("Найдено {} друзей для пользователя {}", friends.size(), userId);
-        return ResponseEntity.ok(friends);
+        return ResponseEntity.ok(userMapper.toUserDtoList(friends));
     }
 
-    public ResponseEntity<User> getUserById(Long userId) {
-        if (userId == null || userId < 0) {
-            throw new ValidationException("Некорректный ID пользователя");
-        }
+    public ResponseEntity<UserResponseDto> getUserById(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new NotFoundException("Пользователь с ID %s не найден".formatted(userId)));
 
-        User user = userStorage.getUserById(userId);
-        if (user == null) {
-            throw new NotFoundException("Пользователь с ID %s не найден".formatted(userId));
-        }
         log.info("Найден пользователь: ID={}, Логин={}", userId, user.getLogin());
-        return ResponseEntity.ok(user);
+
+        return ResponseEntity.ok(userMapper.toUserDto(user));
     }
 
     public void deleteAllUsers() {
         log.warn("Выполняется запрос на удаление всех пользователей");
-        userStorage.deleteAll();
+        userRepository.deleteAll();
         log.info("Все пользователи удалены");
     }
 }

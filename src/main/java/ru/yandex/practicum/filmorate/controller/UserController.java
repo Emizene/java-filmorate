@@ -4,7 +4,8 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.dto.ChangeUserDto;
+import ru.yandex.practicum.filmorate.dto.UserResponseDto;
 import ru.yandex.practicum.filmorate.service.UserService;
 
 import java.util.List;
@@ -17,17 +18,17 @@ public class UserController {
     private final UserService userService;
 
     @GetMapping
-    public ResponseEntity<List<User>> getAllUsers() {
+    public ResponseEntity<List<UserResponseDto>> getAllUsers() {
     return userService.getAllUsers();
     }
 
     @PostMapping
-    public ResponseEntity<User> createUser(@Valid @RequestBody User user) {
+    public ResponseEntity<UserResponseDto> createUser(@Valid @RequestBody ChangeUserDto user) {
         return userService.createUser(user);
     }
 
     @PutMapping
-    public ResponseEntity<User> updateUser(@Valid @RequestBody User user) {
+    public ResponseEntity<UserResponseDto> updateUser(@Valid @RequestBody ChangeUserDto user) {
         return userService.updateUser(user);
     }
 
@@ -42,17 +43,17 @@ public class UserController {
     }
 
     @GetMapping("/{userId}/friends")
-    public ResponseEntity<List<User>> getFriends(@PathVariable Long userId) {
+    public ResponseEntity<List<UserResponseDto>> getFriends(@PathVariable Long userId) {
         return userService.getFriends(userId);
     }
 
     @GetMapping("/{user1Id}/friends/common/{user2Id}")
-    public ResponseEntity<List<User>> getCommonFriends(@PathVariable Long user1Id, @PathVariable Long user2Id) {
+    public ResponseEntity<List<UserResponseDto>> getCommonFriends(@PathVariable Long user1Id, @PathVariable Long user2Id) {
         return userService.getCommonFriends(user1Id, user2Id);
     }
 
     @GetMapping("/{userId}")
-    public ResponseEntity<User> gerUserById(@PathVariable Long userId) {
+    public ResponseEntity<UserResponseDto> gerUserById(@PathVariable Long userId) {
         return userService.getUserById(userId);
     }
 
