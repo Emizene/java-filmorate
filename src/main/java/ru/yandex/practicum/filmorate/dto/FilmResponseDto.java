@@ -12,7 +12,7 @@ public class FilmResponseDto {
     private String description;
     private LocalDate releaseDate;
     private Integer duration;
-    private MpaDto mpaName;
+    private MpaDto mpa;
     private List<GenreDto> genre;
     private int likes;
 }

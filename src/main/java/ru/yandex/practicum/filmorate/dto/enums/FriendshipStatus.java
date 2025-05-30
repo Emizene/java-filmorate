@@ -1,4 +1,4 @@
-package ru.yandex.practicum.filmorate.model.enums;
+package ru.yandex.practicum.filmorate.dto.enums;
 
 import lombok.AllArgsConstructor;
 

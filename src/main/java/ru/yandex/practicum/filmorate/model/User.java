@@ -9,10 +9,7 @@ import jakarta.validation.constraints.Pattern;
 import lombok.*;
 
 import java.time.LocalDate;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 
 @Getter
 @Setter
@@ -47,10 +44,10 @@ public class User {
             joinColumns = @JoinColumn(name = "user_id"),
             inverseJoinColumns = @JoinColumn(name = "friend_id")
     )
-    private Set<User> friends;
+    private Set<User> friends = new HashSet<>();
 
     @ManyToMany(mappedBy = "usersWithLikes")
-    private List<Film> likedFilms;
+    private List<Film> likedFilms = new ArrayList<>();
 
     public User(String email, String login, String name, LocalDate birthday) {
         this.email = email;

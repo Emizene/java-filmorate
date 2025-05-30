@@ -1,6 +1,5 @@
 package ru.yandex.practicum.filmorate.dto;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 
 import java.time.LocalDate;
@@ -13,7 +12,7 @@ public class ChangeFilmDto {
     private String description;
     private LocalDate releaseDate;
     private Integer duration;
-    private Long mpaRatingId;
-    private Long genreId;
+    private MpaDto mpa;
+    private List<Long> genreId;
     private List<Long> userWithLikesId;
 }

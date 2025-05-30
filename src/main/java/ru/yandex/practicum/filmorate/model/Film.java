@@ -9,6 +9,7 @@ import jakarta.validation.constraints.Size;
 import lombok.*;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -60,7 +61,7 @@ public class Film {
             joinColumns = @JoinColumn(name = "film_id"),
             inverseJoinColumns = @JoinColumn(name = "user_id")
     )
-    private List<User> usersWithLikes;
+    private List<User> usersWithLikes = new ArrayList<>();
 
     public Film(String name, String description, LocalDate releaseDate, Integer duration) {
         this.name = name;
