@@ -148,7 +148,6 @@ public class UserService {
                 .orElseThrow(() -> new NotFoundException("Пользователь с ID %s не найден".formatted(friendId)));
 
         user.getFriends().remove(friend);
-        friend.getFriends().remove(user);
 
         log.info("Пользователь {} удален из друзей у {}", friendId, userId);
         return ResponseEntity.ok().build();
