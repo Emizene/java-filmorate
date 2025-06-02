@@ -60,7 +60,7 @@ public class FilmTest extends FilmorateApplicationTests {
                         .contentType(APPLICATION_JSON)
                         .content("{\"id\":1,\"name\":\"New name 1\",\"description\":\"New description 1\",\"releaseDate\":\"2000-07-27\",\"duration\":120,\"mpa\":{\"id\":1,\"name\":\"G\"},\"genres\":[{\"id\":1,\"name\":\"Комедия\"}],\"likes\":0}"))
                 .andExpect(status().isOk())
-                .andExpect(content().json( "{\"id\":1,\"name\":\"New name 1\",\"description\":\"New description 1\",\"releaseDate\":\"2000-07-27\",\"duration\":120,\"mpa\":{\"id\":1,\"name\":\"G\"},\"genres\":[{\"id\":1,\"name\":\"Комедия\"}],\"likes\":0}"));
+                .andExpect(content().json("{\"id\":1,\"name\":\"New name 1\",\"description\":\"New description 1\",\"releaseDate\":\"2000-07-27\",\"duration\":120,\"mpa\":{\"id\":1,\"name\":\"G\"},\"genres\":[{\"id\":1,\"name\":\"Комедия\"}],\"likes\":0}"));
     }
 
     @Test
@@ -95,9 +95,7 @@ public class FilmTest extends FilmorateApplicationTests {
                         .contentType(APPLICATION_JSON)
                         .content("{\"id\":1,\"name\":\"Name 1\",\"description\":\"Description 1\",\"releaseDate\":\"2000-07-27\",\"duration\":120,\"mpa\":{\"id\":1,\"name\":\"G\"},\"genres\":[{\"id\":1,\"name\":\"Комедия\"}],\"likes\":1}"))
                 .andExpect(status().isOk())
-                .andExpect(content().json("""
-                        {"id":1,"name":"Name 1","description":"Description 1","releaseDate":"2000-07-27","duration":120,"mpa":{"id":1,"name":"G"},"genres":[{"id":1,"name":"Комедия"}],"likes":1}
-                        """));
+                .andExpect(content().json("{\"id\":1,\"name\":\"Name 1\",\"description\":\"Description 1\",\"releaseDate\":\"2000-07-27\",\"duration\":120,\"mpa\":{\"id\":1,\"name\":\"G\"},\"genres\":[{\"id\":1,\"name\":\"Комедия\"}],\"likes\":1}"));
         filmService.deleteLike(1L, 1L);
         mockMvc.perform(put("/films")
                         .contentType(APPLICATION_JSON)
