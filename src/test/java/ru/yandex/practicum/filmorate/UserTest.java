@@ -49,9 +49,7 @@ public class UserTest extends FilmorateApplicationTests {
                         .content("{\"id\": 1,\"email\": \"updateemail1@yandex.ru\",\"login\": \"user1\",\"name\": \"Ян\",\"birthday\": \"1996-12-05\"}"))
                 .andDo(print())
                 .andExpect(status().isOk())
-                .andExpect(content().json("""
-                        {"id": 1,"email": "updateemail1@yandex.ru","login": "user1","name": "Ян","birthday": "1996-12-05"}
-                        """));
+                .andExpect(content().json("{\"id\": 1,\"email\": \"updateemail1@yandex.ru\",\"login\": \"user1\",\"name\": \"Ян\",\"birthday\": \"1996-12-05\"}"));
     }
 
     @Test
@@ -61,10 +59,7 @@ public class UserTest extends FilmorateApplicationTests {
         userService.createUser(user1);
         mockMvc.perform(get("/users"))
                 .andExpect(status().isOk())
-                .andExpect(content().json("""
-                        [{"id": 1,"email": "email1@yandex.ru","login": "user1",
-                        		"name": "Ян","birthday": "1996-12-05"}]
-                        """));
+                .andExpect(content().json("[{\"id\": 1,\"email\": \"email1@yandex.ru\",\"login\": \"user1\",\"name\": \"Ян\",\"birthday\": \"1996-12-05\"}]"));
     }
 
     @Test
@@ -79,10 +74,7 @@ public class UserTest extends FilmorateApplicationTests {
         userService.addFriend(saved1.getId(), saved2.getId());
         mockMvc.perform(get("/users/1/friends"))
                 .andExpect(status().isOk())
-                .andExpect(content().json("""
-                        [{"id": 2,"email": "email2@yandex.ru","login": "user2",
-                        		"name": "Ян2","birthday": "1996-12-05"}]
-                        """));
+                .andExpect(content().json("[{\"id\": 2,\"email\": \"email2@yandex.ru\",\"login\": \"user2\",\"name\": \"Ян2\",\"birthday\": \"1996-12-05\"}]"));
     }
 
     @Test
@@ -97,17 +89,12 @@ public class UserTest extends FilmorateApplicationTests {
         userService.addFriend(saved1.getId(), saved2.getId());
         mockMvc.perform(get("/users/1/friends"))
                 .andExpect(status().isOk())
-                .andExpect(content().json("""
-                        [{"id": 2,"email": "email2@yandex.ru","login": "user2",
-                        		"name": "Ян2","birthday": "1996-12-05"}]
-                        """));
+                .andExpect(content().json("[{\"id\": 2,\"email\": \"email2@yandex.ru\",\"login\": \"user2\",\"name\": \"Ян2\",\"birthday\": \"1996-12-05\"}]"));
 
         userService.deleteFriend(saved1.getId(), saved2.getId());
         mockMvc.perform(get("/users/1/friends"))
                 .andExpect(status().isOk())
-                .andExpect(content().json("""
-                        []
-                        """));
+                .andExpect(content().json("[]"));
     }
 
     @Test
@@ -129,10 +116,7 @@ public class UserTest extends FilmorateApplicationTests {
 
         mockMvc.perform(get("/users/1/friends"))
                 .andExpect(status().isOk())
-                .andExpect(content().json("""
-                        [{"id": 2,"email": "email2@yandex.ru","login": "user2",
-                        		"name": "Ян2","birthday": "1996-12-05"}]
-                        """));
+                .andExpect(content().json("[{\"id\": 2,\"email\": \"email2@yandex.ru\",\"login\": \"user2\",\"name\": \"Ян2\",\"birthday\": \"1996-12-05\"}]"));
     }
 
     @Test

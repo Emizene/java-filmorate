@@ -37,9 +37,7 @@ public class FilmTest extends FilmorateApplicationTests {
         filmService.addFilm(film1);
         mockMvc.perform(get("/films"))
                 .andExpect(status().isOk())
-                .andExpect(content().json("""
-                        [{"id":1,"name":"Name 1","description":"Description 1","releaseDate":"2000-07-27","duration":120,"mpa":{"id":1,"name":"G"},"genres":[{"id":1,"name":"Комедия"}],"likes":0}]
-                        """));
+                .andExpect(content().json("[{\"id\":1,\"name\":\"Name 1\",\"description\":\"Description 1\",\"releaseDate\":\"2000-07-27\",\"duration\":120,\"mpa\":{\"id\":1,\"name\":\"G\"},\"genres\":[{\"id\":1,\"name\":\"Комедия\"}],\"likes\":0}]"));
     }
 
     @Test
@@ -49,9 +47,7 @@ public class FilmTest extends FilmorateApplicationTests {
                         .contentType(APPLICATION_JSON)
                         .content("{\"name\":\"Name 1\",\"description\":\"Description 1\",\"releaseDate\":\"2000-07-27\",\"duration\":120}"))
                 .andExpect(status().isCreated())
-                .andExpect(content().json("""
-                        {"name":"Name 1","description":"Description 1","releaseDate":"2000-07-27","duration":120}
-                        """));
+                .andExpect(content().json("{\"name\":\"Name 1\",\"description\":\"Description 1\",\"releaseDate\":\"2000-07-27\",\"duration\":120}"));
     }
 
     @Test
@@ -64,9 +60,7 @@ public class FilmTest extends FilmorateApplicationTests {
                         .contentType(APPLICATION_JSON)
                         .content("{\"id\":1,\"name\":\"New name 1\",\"description\":\"New description 1\",\"releaseDate\":\"2000-07-27\",\"duration\":120,\"mpa\":{\"id\":1,\"name\":\"G\"},\"genres\":[{\"id\":1,\"name\":\"Комедия\"}],\"likes\":0}"))
                 .andExpect(status().isOk())
-                .andExpect(content().json("""
-                        {"id":1,"name":"New name 1","description":"New description 1","releaseDate":"2000-07-27","duration":120,"mpa":{"id":1,"name":"G"},"genres":[{"id":1,"name":"Комедия"}],"likes":0}
-                        """));
+                .andExpect(content().json( "{\"id\":1,\"name\":\"New name 1\",\"description\":\"New description 1\",\"releaseDate\":\"2000-07-27\",\"duration\":120,\"mpa\":{\"id\":1,\"name\":\"G\"},\"genres\":[{\"id\":1,\"name\":\"Комедия\"}],\"likes\":0}"));
     }
 
     @Test
@@ -84,9 +78,7 @@ public class FilmTest extends FilmorateApplicationTests {
                         .contentType(APPLICATION_JSON)
                         .content("{\"id\":1,\"name\":\"Name 1\",\"description\":\"Description 1\",\"releaseDate\":\"2000-07-27\",\"duration\":120,\"mpa\":{\"id\":1,\"name\":\"G\"},\"genres\":[{\"id\":1,\"name\":\"Комедия\"}],\"likes\":1}"))
                 .andExpect(status().isOk())
-                .andExpect(content().json("""
-                        {"id":1,"name":"Name 1","description":"Description 1","releaseDate":"2000-07-27","duration":120,"mpa":{"id":1,"name":"G"},"genres":[{"id":1,"name":"Комедия"}],"likes":1}
-                        """));
+                .andExpect(content().json("{\"id\":1,\"name\":\"Name 1\",\"description\":\"Description 1\",\"releaseDate\":\"2000-07-27\",\"duration\":120,\"mpa\":{\"id\":1,\"name\":\"G\"},\"genres\":[{\"id\":1,\"name\":\"Комедия\"}],\"likes\":1}"));
     }
 
     @Test
@@ -101,19 +93,17 @@ public class FilmTest extends FilmorateApplicationTests {
         filmService.addLike(1L, 1L);
         mockMvc.perform(put("/films")
                         .contentType(APPLICATION_JSON)
-                        .content("{\"id\":1,\"name\":\"New name 1\",\"description\":\"New description 1\",\"releaseDate\":\"2000-07-27\",\"duration\":120,\"mpa\":{\"id\":1,\"name\":\"G\"},\"genres\":[{\"id\":1,\"name\":\"Комедия\"}],\"likes\":1}"))
+                        .content("{\"id\":1,\"name\":\"Name 1\",\"description\":\"Description 1\",\"releaseDate\":\"2000-07-27\",\"duration\":120,\"mpa\":{\"id\":1,\"name\":\"G\"},\"genres\":[{\"id\":1,\"name\":\"Комедия\"}],\"likes\":1}"))
                 .andExpect(status().isOk())
                 .andExpect(content().json("""
-                        {"id":1,"name":"New name 1","description":"New description 1","releaseDate":"2000-07-27","duration":120,"mpa":{"id":1,"name":"G"},"genres":[{"id":1,"name":"Комедия"}],"likes":1}
+                        {"id":1,"name":"Name 1","description":"Description 1","releaseDate":"2000-07-27","duration":120,"mpa":{"id":1,"name":"G"},"genres":[{"id":1,"name":"Комедия"}],"likes":1}
                         """));
         filmService.deleteLike(1L, 1L);
         mockMvc.perform(put("/films")
                         .contentType(APPLICATION_JSON)
-                        .content("{\"id\":1,\"name\":\"New name 1\",\"description\":\"New description 1\",\"releaseDate\":\"2000-07-27\",\"duration\":120,\"mpa\":{\"id\":1,\"name\":\"G\"},\"genres\":[{\"id\":1,\"name\":\"Комедия\"}],\"likes\":0}"))
+                        .content("{\"id\":1,\"name\":\"Name 1\",\"description\":\"Description 1\",\"releaseDate\":\"2000-07-27\",\"duration\":120,\"mpa\":{\"id\":1,\"name\":\"G\"},\"genres\":[{\"id\":1,\"name\":\"Комедия\"}],\"likes\":0}"))
                 .andExpect(status().isOk())
-                .andExpect(content().json("""
-                        {"id":1,"name":"New name 1","description":"New description 1","releaseDate":"2000-07-27","duration":120,"mpa":{"id":1,"name":"G"},"genres":[{"id":1,"name":"Комедия"}],"likes":0}
-                        """));
+                .andExpect(content().json("{\"id\":1,\"name\":\"Name 1\",\"description\":\"Description 1\",\"releaseDate\":\"2000-07-27\",\"duration\":120,\"mpa\":{\"id\":1,\"name\":\"G\"},\"genres\":[{\"id\":1,\"name\":\"Комедия\"}],\"likes\":0}"));
     }
 
     @Test
@@ -135,9 +125,7 @@ public class FilmTest extends FilmorateApplicationTests {
         mockMvc.perform(get("/films/popular"))
                 .andDo(print())
                 .andExpect(status().isOk())
-                .andExpect(content().json("""
-                        [{"id":1,"name":"Name 1","description":"Description 1","releaseDate":"2000-07-27","duration":120,"mpa":{"id":1,"name":"G"},"genres":[{"id":1,"name":"Комедия"}],"likes":1},{"id":2,"name":"Name 2","description":"Description 2","releaseDate":"2000-07-27","duration":120,"mpa":{"id":1,"name":"G"},"genres":[{"id":1,"name":"Комедия"}],"likes":0}]
-                        """));
+                .andExpect(content().json("[{\"id\":1,\"name\":\"Name 1\",\"description\":\"Description 1\",\"releaseDate\":\"2000-07-27\",\"duration\":120,\"mpa\":{\"id\":1,\"name\":\"G\"},\"genres\":[{\"id\":1,\"name\":\"Комедия\"}],\"likes\":1},{\"id\":2,\"name\":\"Name 2\",\"description\":\"Description 2\",\"releaseDate\":\"2000-07-27\",\"duration\":120,\"mpa\":{\"id\":1,\"name\":\"G\"},\"genres\":[{\"id\":1,\"name\":\"Комедия\"}],\"likes\":0}]"));
 
     }
 
