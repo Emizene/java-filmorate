@@ -24,7 +24,7 @@ public class FilmController {
 
     @PostMapping
     public ResponseEntity<FilmResponseDto> addFilm(@Valid @RequestBody ChangeFilmDto film) {
-     return filmService.addFilm(film);
+        return filmService.addFilm(film);
     }
 
     @PutMapping

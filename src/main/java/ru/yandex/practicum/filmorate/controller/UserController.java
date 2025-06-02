@@ -19,7 +19,7 @@ public class UserController {
 
     @GetMapping
     public ResponseEntity<List<UserResponseDto>> getAllUsers() {
-    return userService.getAllUsers();
+        return userService.getAllUsers();
     }
 
     @PostMapping
@@ -34,7 +34,7 @@ public class UserController {
 
     @PutMapping("/{userId}/friends/{friendId}")
     public ResponseEntity<Void> addFriend(@PathVariable Long userId, @PathVariable Long friendId) {
-            return userService.addFriend(userId, friendId);
+        return userService.addFriend(userId, friendId);
     }
 
     @DeleteMapping("/{userId}/friends/{friendId}")

@@ -20,14 +20,14 @@ public class MpaService {
     private final MpaMapper mpaMapper;
 
     public ResponseEntity<List<MpaDto>> getAllMpa() {
-    log.debug("Запрос всех рейтингов");
+        log.debug("Запрос всех рейтингов");
 
-    List<MpaDto> mpa = mpaRepository.findAll().stream()
-            .map(mpaMapper::toMpaDto)
-            .toList();
+        List<MpaDto> mpa = mpaRepository.findAll().stream()
+                .map(mpaMapper::toMpaDto)
+                .toList();
 
-    log.info("Возвращено {} рейтингов", mpa.size());
-    return ResponseEntity.ok(mpa);
+        log.info("Возвращено {} рейтингов", mpa.size());
+        return ResponseEntity.ok(mpa);
     }
 
     public ResponseEntity<MpaDto> getMpaById(Long id) {
