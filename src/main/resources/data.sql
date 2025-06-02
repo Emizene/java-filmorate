@@ -1,3 +1,9 @@
+DELETE FROM mpa_rating;
+ALTER TABLE mpa_rating ALTER COLUMN id RESTART WITH 1;
+
+DELETE FROM genres;
+ALTER TABLE genres ALTER COLUMN id RESTART WITH 1;
+
 INSERT INTO mpa_rating(id, name)
 VALUES (1, 'G'),
        (2, 'PG'),

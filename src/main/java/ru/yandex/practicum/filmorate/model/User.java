@@ -25,7 +25,7 @@ public class User {
 
     @NotEmpty(message = "Это поле обязательно для заполнения")
     @Email(message = "Email является некорректным")
-    @Column(nullable = false, unique = true)
+    @Column(unique = true)
     private String email;
 
     @NotEmpty(message = "Это поле обязательно для заполнения")
@@ -38,7 +38,7 @@ public class User {
     @PastOrPresent(message = "Дата рождения не может быть в будущем")
     private LocalDate birthday;
 
-    @ManyToMany
+    @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
             name = "user_friends",
             joinColumns = @JoinColumn(name = "user_id"),

@@ -33,6 +33,7 @@ public class UserService {
         return ResponseEntity.ok(users);
     }
 
+    @Transactional
     public ResponseEntity<UserResponseDto> createUser(ChangeUserDto user) {
         log.debug("Создание нового пользователя: email={}, login={}", user.getEmail(), user.getLogin());
         List<User> allUsers = userRepository.findAll().stream()
@@ -61,6 +62,7 @@ public class UserService {
         return ResponseEntity.status(HttpStatus.CREATED).body(userMapper.toUserDto(entity));
     }
 
+    @Transactional
     public ResponseEntity<UserResponseDto> updateUser(ChangeUserDto user) {
         log.debug("Обновление существующего пользователя с ID {}", user.getId());
         List<User> allUsers = userRepository.findAll().stream()
@@ -204,6 +206,7 @@ public class UserService {
         return ResponseEntity.ok(userMapper.toUserDto(user));
     }
 
+    @Transactional
     public void deleteAllUsers() {
         log.warn("Выполняется запрос на удаление всех пользователей");
         userRepository.deleteAll();

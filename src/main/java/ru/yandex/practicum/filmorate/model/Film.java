@@ -16,7 +16,6 @@ import java.util.Objects;
 @Getter
 @Setter
 @ToString
-@EqualsAndHashCode
 @AllArgsConstructor
 @Valid
 @NoArgsConstructor
@@ -62,13 +61,6 @@ public class Film {
             inverseJoinColumns = @JoinColumn(name = "user_id")
     )
     private List<User> usersWithLikes = new ArrayList<>();
-
-    public Film(String name, String description, LocalDate releaseDate, Integer duration) {
-        this.name = name;
-        this.description = description;
-        this.releaseDate = releaseDate;
-        this.duration = duration;
-    }
 
     @Override
     public boolean equals(Object o) {

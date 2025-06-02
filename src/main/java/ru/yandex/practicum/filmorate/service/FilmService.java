@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.service;
 
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -35,13 +36,6 @@ public class FilmService {
     private final GenreMapper genreMapper;
     private static final LocalDate MIN_RELEASE_DATE = LocalDate.of(1895, 12, 28);
 
-//    public void validateFilm(Film film) {
-//        if (film.getReleaseDate().isBefore(MIN_RELEASE_DATE)) {
-//            log.warn("Ошибка валидации: дата релиза {} раньше минимальной {}", film.getReleaseDate(), MIN_RELEASE_DATE);
-//            throw new ValidationException("Дата релиза не может быть раньше 28 декабря 1895 года");
-//        }
-//    }
-
     public ResponseEntity<List<FilmResponseDto>> getAllFilms() {
         log.debug("Запрос всех фильмов");
         List<FilmResponseDto> films = filmRepository.findAll().stream()
@@ -52,6 +46,7 @@ public class FilmService {
         return ResponseEntity.ok(films);
     }
 
+    @Transactional
     public ResponseEntity<FilmResponseDto> addFilm(ChangeFilmDto film) {
         log.debug("Попытка добавить фильм: {}", film.getName());
 
@@ -60,16 +55,15 @@ public class FilmService {
             throw new ValidationException("Дата релиза не может быть раньше 28 декабря 1895 года");
         }
 
-        if (film.getMpa() == null || film.getMpa().getId() < 1 || film.getMpa().getId() > 5) {
+        if (film.getMpa() != null && (film.getMpa().getId() < 1 || film.getMpa().getId() > 5)) {
             throw new NotFoundException("Mpa рейтинга с ID %s не существует"
-                    .formatted(film.getMpa() != null ? film.getMpa().getId() : "null"));
+                    .formatted(film.getMpa().getId()));
         }
 
         if (film.getGenres() != null && film.getGenres().stream()
                 .anyMatch(genre -> genre.getId() < 1 || genre.getId() > 6)) {
             throw new NotFoundException("Жанра с таким ID не существует");
         }
-
 
         Film entity = filmMapper.toEntity(film);
         filmRepository.save(entity);
@@ -78,6 +72,7 @@ public class FilmService {
         return ResponseEntity.status(HttpStatus.CREATED).body(filmMapper.toFilmDto(entity));
     }
 
+    @Transactional
     public ResponseEntity<FilmResponseDto> updateFilm(ChangeFilmDto film) {
         log.debug("Попытка обновить фильм ID={}", film.getId());
 
@@ -163,6 +158,7 @@ public class FilmService {
         return ResponseEntity.ok().body(filmMapper.toFilmDto(updateFilm));
     }
 
+    @Transactional
     public ResponseEntity<Void> addLike(Long filmId, Long userId) {
         log.debug("Попытка добавить лайк: filmID={}, userID={}", filmId, userId);
 
@@ -195,6 +191,7 @@ public class FilmService {
         return ResponseEntity.ok().build();
     }
 
+    @Transactional
     public ResponseEntity<Void> deleteLike(Long filmId, Long userId) {
         log.debug("Попытка удалить лайк: filmID={}, userID={}", filmId, userId);
 
@@ -252,6 +249,7 @@ public class FilmService {
         return ResponseEntity.ok(filmMapper.toFilmDto(film));
     }
 
+    @Transactional
     public void deleteAllFilms() {
         log.warn("Удаление всех фильмов");
         filmRepository.deleteAll();

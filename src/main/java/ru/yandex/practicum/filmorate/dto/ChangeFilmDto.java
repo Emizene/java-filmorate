@@ -15,4 +15,14 @@ public class ChangeFilmDto {
     private MpaDto mpa;
     private List<GenreDto> genres;
     private List<Long> userWithLikesId;
+
+    public ChangeFilmDto(String name, String description,LocalDate releaseDate,
+                         Integer duration, MpaDto mpa, List<GenreDto> genres) {
+        this.name = name;
+        this.description = description;
+        this.releaseDate = releaseDate;
+        this.duration = duration;
+        this.mpa = mpa;
+        this.genres = genres;
+    }
 }
