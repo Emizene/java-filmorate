@@ -4,6 +4,7 @@ import lombok.Data;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Set;
 
 @Data
 public class ChangeFilmDto {
@@ -13,11 +14,11 @@ public class ChangeFilmDto {
     private LocalDate releaseDate;
     private Integer duration;
     private MpaDto mpa;
-    private List<GenreDto> genres;
+    private Set<GenreDto> genres;
     private List<Long> userWithLikesId;
 
     public ChangeFilmDto(String name, String description, LocalDate releaseDate,
-                         Integer duration, MpaDto mpa, List<GenreDto> genres) {
+                         Integer duration, MpaDto mpa, Set<GenreDto> genres) {
         this.name = name;
         this.description = description;
         this.releaseDate = releaseDate;

@@ -134,7 +134,6 @@ public class UserService {
         user.getFriends().add(friend);
 
         userRepository.save(user);
-        userRepository.save(friend);
 
         log.info("Пользователь {} успешно добавлен в друзья к {}", friendId, userId);
         return ResponseEntity.ok().build();
