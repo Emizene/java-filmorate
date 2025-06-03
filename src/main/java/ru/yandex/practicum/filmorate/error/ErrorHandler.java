@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.error;
 
+import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -8,6 +9,8 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import ru.yandex.practicum.filmorate.exception.InternalServerErrorException;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
+
+import java.lang.reflect.InvocationTargetException;
 
 @Slf4j
 @RestControllerAdvice
@@ -32,5 +35,19 @@ public class ErrorHandler {
     public ErrorResponse handleInternalServerError(final InternalServerErrorException e) {
         log.error("Ошибка сервера.", e);
         return new ErrorResponse("Ошибка сервера.", e.getMessage());
+    }
+
+    @ExceptionHandler(ConstraintViolationException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponse handleIncorrectParameter(final ConstraintViolationException e) {
+        log.error("Ошибка валидации.", e);
+        return new ErrorResponse("Ошибка валидации.", e.getMessage());
+    }
+
+    @ExceptionHandler(InvocationTargetException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponse handleIncorrectParameter(final InvocationTargetException e) {
+        log.error("Ошибка валидации.", e);
+        return new ErrorResponse("Ошибка валидации.", e.getMessage());
     }
 }

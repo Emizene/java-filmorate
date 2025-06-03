@@ -4,7 +4,8 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.dto.ChangeFilmDto;
+import ru.yandex.practicum.filmorate.dto.FilmResponseDto;
 import ru.yandex.practicum.filmorate.service.FilmService;
 
 import java.util.List;
@@ -17,17 +18,17 @@ public class FilmController {
     private final FilmService filmService;
 
     @GetMapping
-    public ResponseEntity<List<Film>> getAllFilms() {
+    public ResponseEntity<List<FilmResponseDto>> getAllFilms() {
         return filmService.getAllFilms();
     }
 
     @PostMapping
-    public ResponseEntity<Film> addFilm(@Valid @RequestBody Film film) {
-     return filmService.addFilm(film);
+    public ResponseEntity<FilmResponseDto> addFilm(@Valid @RequestBody ChangeFilmDto film) {
+        return filmService.addFilm(film);
     }
 
     @PutMapping
-    public ResponseEntity<Film> updateFilm(@Valid @RequestBody Film film) {
+    public ResponseEntity<FilmResponseDto> updateFilm(@Valid @RequestBody ChangeFilmDto film) {
         return filmService.updateFilm(film);
     }
 
@@ -42,12 +43,12 @@ public class FilmController {
     }
 
     @GetMapping("/popular")
-    public ResponseEntity<List<Film>> getPopularFilms(@RequestParam(defaultValue = "10") int count) {
+    public ResponseEntity<List<FilmResponseDto>> getPopularFilms(@RequestParam(defaultValue = "10") int count) {
         return filmService.getPopularFilms(count);
     }
 
     @GetMapping("/{filmId}")
-    public ResponseEntity<Film> getFilmById(@PathVariable Long filmId) {
+    public ResponseEntity<FilmResponseDto> getFilmById(@PathVariable Long filmId) {
         return filmService.getFilmById(filmId);
     }
 }
