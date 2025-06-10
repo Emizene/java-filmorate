@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.dto.ChangeUserDto;
+import ru.yandex.practicum.filmorate.dto.FilmResponseDto;
 import ru.yandex.practicum.filmorate.dto.UserResponseDto;
 import ru.yandex.practicum.filmorate.service.UserService;
 
@@ -57,4 +58,8 @@ public class UserController {
         return userService.getUserById(userId);
     }
 
+    @GetMapping("/{userId}/recommendations")
+    public ResponseEntity<List<FilmResponseDto>> getRecommendations(@PathVariable Long userId) {
+        return userService.getRecommendations(userId);
+    }
 }

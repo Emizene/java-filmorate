@@ -5,18 +5,21 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.annotation.DirtiesContext;
 import ru.yandex.practicum.filmorate.dao.UserRepository;
+import ru.yandex.practicum.filmorate.dto.ChangeFilmDto;
 import ru.yandex.practicum.filmorate.dto.ChangeUserDto;
+import ru.yandex.practicum.filmorate.dto.GenreDto;
+import ru.yandex.practicum.filmorate.dto.MpaDto;
 import ru.yandex.practicum.filmorate.model.User;
 
 import java.time.LocalDate;
 import java.util.Objects;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
 public class UserTest extends FilmorateApplicationTests {
@@ -157,6 +160,51 @@ public class UserTest extends FilmorateApplicationTests {
                         .contentType(APPLICATION_JSON)
                         .content("{\"email\": \"email\",\"login\": \"\",\"name\": \"name\",\"birthday\": \"2026-1-16\"}"))
                 .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void checkMethodGetRecommendations() throws Exception {
+        ChangeFilmDto film1 = new ChangeFilmDto("Name 1", "Description 1",
+                LocalDate.of(2000, 7, 27), 120,
+                new MpaDto(1L, "G"), Set.of(new GenreDto(1L, "Комедия")));
+        filmService.addFilm(film1);
+        ChangeFilmDto film2 = new ChangeFilmDto("Name 2", "Description 2",
+                LocalDate.of(2000, 7, 27), 120,
+                new MpaDto(1L, "G"), Set.of(new GenreDto(1L, "Комедия")));
+        filmService.addFilm(film2);
+        ChangeFilmDto film3 = new ChangeFilmDto("Name 3", "Description 3",
+                LocalDate.of(2000, 7, 27), 120,
+                new MpaDto(1L, "G"), Set.of(new GenreDto(1L, "Комедия")));
+        filmService.addFilm(film3);
+        ChangeUserDto user1 = new ChangeUserDto("email1@yandex.ru", "user1", "Ян",
+                LocalDate.of(1996, 12, 5));
+        userService.createUser(user1);
+        ChangeUserDto user2 = new ChangeUserDto("email2@yandex.ru", "user2", "Ян",
+                LocalDate.of(1996, 12, 5));
+        userService.createUser(user2);
+        ChangeUserDto user3 = new ChangeUserDto("email3@yandex.ru", "user3", "Ян",
+                LocalDate.of(1996, 12, 5));
+        userService.createUser(user3);
+        filmService.addLike(1L, 1L);
+        filmService.addLike(2L, 1L);
+        filmService.addLike(3L, 1L);
+        filmService.addLike(1L, 2L);
+        filmService.addLike(3L, 2L);
+
+        mockMvc.perform(get("/users/1/recommendations"))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(content().json("[]"));
+
+        mockMvc.perform(get("/users/2/recommendations"))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].name").value("Name 2"));
+
+        mockMvc.perform(get("/users/3/recommendations"))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(content().json("[]"));
     }
 }
 

@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.dao.UserRepository;
 import ru.yandex.practicum.filmorate.dto.ChangeUserDto;
+import ru.yandex.practicum.filmorate.dto.FilmResponseDto;
 import ru.yandex.practicum.filmorate.dto.UserResponseDto;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
@@ -23,6 +24,7 @@ import java.util.stream.Collectors;
 public class UserService {
     private final UserRepository userRepository;
     private final UserMapper userMapper;
+    private final FilmService filmService;
 
     public ResponseEntity<List<UserResponseDto>> getAllUsers() {
         log.debug("Запрос всех пользователей");
@@ -210,5 +212,10 @@ public class UserService {
         log.warn("Выполняется запрос на удаление всех пользователей");
         userRepository.deleteAll();
         log.info("Все пользователи удалены");
+    }
+
+    public ResponseEntity<List<FilmResponseDto>> getRecommendations(Long userId) {
+        log.debug("Выполняется запрос на получение рекомендаций для пользователя {}", userId);
+        return ResponseEntity.ok(filmService.getRecommendations(userId));
     }
 }

@@ -86,12 +86,6 @@ public class FilmService {
                 });
 
         if (film.getName() != null && !updateFilm.getName().equals(film.getName())) {
-            boolean nameExists = allFilms.stream()
-                    .anyMatch(f -> f.getName().equalsIgnoreCase(film.getName()));
-            if (nameExists) {
-                log.warn("Фильм с таким названием уже существует: {}", film.getName());
-                throw new ValidationException("Фильм с названием '" + film.getName() + "' уже существует");
-            }
             log.debug("Обновление названия фильма с '{}' на '{}'", updateFilm.getName(), film.getName());
             updateFilm.setName(film.getName());
         }
@@ -256,4 +250,9 @@ public class FilmService {
         log.info("Все фильмы удалены");
     }
 
+    public List<FilmResponseDto> getRecommendations(Long userId) {
+        List<Film> recommendations = filmRepository.findRecommendations(userId);
+        log.info("Возвращено {} рекомендованных фильмов", recommendations.size());
+        return filmMapper.toFilmDtoList(recommendations);
+    }
 }
