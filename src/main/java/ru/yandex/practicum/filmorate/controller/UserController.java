@@ -62,4 +62,10 @@ public class UserController {
     public ResponseEntity<List<FilmResponseDto>> getRecommendations(@PathVariable Long userId) {
         return userService.getRecommendations(userId);
     }
+
+    @DeleteMapping("/{userId}")
+    public ResponseEntity<Void> deleteUserById(@PathVariable Long userId) {
+        userService.deleteUser(userId);
+        return ResponseEntity.noContent().build();
+    }
 }

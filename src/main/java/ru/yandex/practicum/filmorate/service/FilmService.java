@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.dao.FilmRepository;
 import ru.yandex.practicum.filmorate.dao.MpaRepository;
@@ -34,6 +35,7 @@ public class FilmService {
     private final UserRepository userRepository;
     private final MpaRepository mpaRepository;
     private final GenreMapper genreMapper;
+    private final JdbcTemplate jdbcTemplate;
     private static final LocalDate MIN_RELEASE_DATE = LocalDate.of(1895, 12, 28);
 
     public ResponseEntity<List<FilmResponseDto>> getAllFilms() {
@@ -254,5 +256,37 @@ public class FilmService {
         List<Film> recommendations = filmRepository.findRecommendations(userId);
         log.info("Возвращено {} рекомендованных фильмов", recommendations.size());
         return filmMapper.toFilmDtoList(recommendations);
+    }
+
+    @Transactional
+    public void deleteFilm(long filmId) {
+        log.debug("Начато удаление фильма с ID {}", filmId);
+
+        if (!filmRepository.existsById(filmId)) {
+            log.error("Фильм с ID {} не найден", filmId);
+            throw new NotFoundException("Фильм с ID %s не найден".formatted(filmId));
+        }
+        deleteFilmGenres(filmId);
+        deleteFilmLikes(filmId);
+        // Удаляем сам фильм
+        deleteFilmEntity(filmId);
+        log.info("Фильм с ID {} и все его зависимости успешно удалены", filmId);
+    }
+
+    private void deleteFilmGenres(long filmId) {
+        String sql = "DELETE FROM film_genres WHERE film_id = ?";
+        int deleted = jdbcTemplate.update(sql, filmId);
+        log.debug("Удалено {} жанров для фильма ID {}", deleted, filmId);
+    }
+
+    private void deleteFilmLikes(long filmId) {
+        String sql = "DELETE FROM likes WHERE film_id = ?";
+        int deleted = jdbcTemplate.update(sql, filmId);
+        log.debug("Удалено {} лайков для фильма ID {}", deleted, filmId);
+    }
+
+    private void deleteFilmEntity(long filmId) {
+        filmRepository.deleteById(filmId);
+        log.debug("Основная запись фильма ID {} удалена", filmId);
     }
 }

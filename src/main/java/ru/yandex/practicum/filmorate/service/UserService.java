@@ -218,4 +218,14 @@ public class UserService {
         log.debug("Выполняется запрос на получение рекомендаций для пользователя {}", userId);
         return ResponseEntity.ok(filmService.getRecommendations(userId));
     }
+
+    @Transactional
+    public void deleteUser(long userId) {
+        log.debug("Выполняется удаление пользователя с ID {}", userId);
+        if (!userRepository.existsById(userId)) {
+            throw new NotFoundException("Пользователь с ID %s не найден".formatted(userId));
+        }
+        userRepository.deleteById(userId);
+        log.debug("Пользователь с ID {} успешно удален", userId);
+    }
 }

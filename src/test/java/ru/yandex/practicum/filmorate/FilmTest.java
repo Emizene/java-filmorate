@@ -3,13 +3,13 @@ package ru.yandex.practicum.filmorate;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.test.annotation.DirtiesContext;
 import ru.yandex.practicum.filmorate.dao.GenreRepository;
 import ru.yandex.practicum.filmorate.dao.MpaRepository;
-import ru.yandex.practicum.filmorate.dto.ChangeFilmDto;
-import ru.yandex.practicum.filmorate.dto.ChangeUserDto;
-import ru.yandex.practicum.filmorate.dto.GenreDto;
-import ru.yandex.practicum.filmorate.dto.MpaDto;
+import ru.yandex.practicum.filmorate.dto.*;
+import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.Mpa;
@@ -18,13 +18,12 @@ import java.time.LocalDate;
 import java.util.Objects;
 import java.util.Set;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.hamcrest.Matchers.hasSize;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
 public class FilmTest extends FilmorateApplicationTests {
@@ -214,4 +213,54 @@ public class FilmTest extends FilmorateApplicationTests {
                 .andExpect(status().isNotFound());
     }
 
+    @Test
+    public void testDeleteFilm() throws Exception {
+        Mpa mpa = mpaRepository.save(new Mpa(1L, "PG-13"));
+        Genre genre = genreRepository.save(new Genre(1L, "Комедия"));
+
+        ChangeFilmDto filmDto = new ChangeFilmDto(
+                "Фильм для удаления",
+                "Описание удаляемого фильма",
+                LocalDate.of(2020, 1, 1),
+                120,
+                new MpaDto(mpa.getId(), mpa.getName()),
+                Set.of(new GenreDto(genre.getId(), genre.getName()))
+        );
+
+        ResponseEntity<FilmResponseDto> response = filmService.addFilm(filmDto);
+        FilmResponseDto createdFilm = response.getBody();
+        Long filmId = Objects.requireNonNull(createdFilm).getId();
+
+        assertEquals(HttpStatus.CREATED, response.getStatusCode());
+
+        mockMvc.perform(get("/films/" + filmId))
+                .andExpect(status().isOk());
+
+        // Проверяем, что фильм есть в общем списке
+        mockMvc.perform(get("/films"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(1)));
+
+        mockMvc.perform(delete("/films/" + filmId))
+                .andExpect(status().isNoContent());
+
+        // Проверяем, что фильм исчез из общего списка
+        mockMvc.perform(get("/films"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(0)));
+
+        // Пытаемся получить удаленный фильм
+        mockMvc.perform(get("/films/" + filmId))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    public void testDeleteNonExistingFilm() {
+        assertThrows(NotFoundException.class, () -> filmService.deleteFilm(999L));
+
+        Throwable exception = assertThrows(NotFoundException.class,
+                () -> filmService.deleteFilm(999L));
+
+        assertTrue(exception.getMessage().contains("Фильм с ID 999 не найден"));
+    }
 }
