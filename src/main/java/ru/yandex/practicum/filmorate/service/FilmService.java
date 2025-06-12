@@ -266,27 +266,9 @@ public class FilmService {
             log.error("Фильм с ID {} не найден", filmId);
             throw new NotFoundException("Фильм с ID %s не найден".formatted(filmId));
         }
-        deleteFilmGenres(filmId);
-        deleteFilmLikes(filmId);
-        // Удаляем сам фильм
-        deleteFilmEntity(filmId);
-        log.info("Фильм с ID {} и все его зависимости успешно удалены", filmId);
-    }
-
-    private void deleteFilmGenres(long filmId) {
-        String sql = "DELETE FROM film_genres WHERE film_id = ?";
-        int deleted = jdbcTemplate.update(sql, filmId);
-        log.debug("Удалено {} жанров для фильма ID {}", deleted, filmId);
-    }
-
-    private void deleteFilmLikes(long filmId) {
-        String sql = "DELETE FROM likes WHERE film_id = ?";
-        int deleted = jdbcTemplate.update(sql, filmId);
-        log.debug("Удалено {} лайков для фильма ID {}", deleted, filmId);
-    }
-
-    private void deleteFilmEntity(long filmId) {
+        jdbcTemplate.update("DELETE FROM film_genres WHERE film_id = ?", filmId);
+        jdbcTemplate.update("DELETE FROM likes WHERE film_id = ?", filmId);
         filmRepository.deleteById(filmId);
-        log.debug("Основная запись фильма ID {} удалена", filmId);
+        log.info("Фильм с ID {} и все его зависимости успешно удалены", filmId);
     }
 }

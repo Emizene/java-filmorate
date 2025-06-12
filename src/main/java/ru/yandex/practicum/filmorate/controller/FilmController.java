@@ -7,7 +7,6 @@ import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.dto.ChangeFilmDto;
 import ru.yandex.practicum.filmorate.dto.FilmResponseDto;
 import ru.yandex.practicum.filmorate.service.FilmService;
-import ru.yandex.practicum.filmorate.mapper.FilmMapper;
 
 import java.util.List;
 
@@ -17,7 +16,6 @@ import java.util.List;
 @Valid
 public class FilmController {
     private final FilmService filmService;
-    private final FilmMapper filmMapper;
 
     @GetMapping
     public ResponseEntity<List<FilmResponseDto>> getAllFilms() {
