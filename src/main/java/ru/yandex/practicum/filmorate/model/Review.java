@@ -31,20 +31,6 @@ public class Review {
     @NotNull
     private Boolean isPositive;
 
-//    @ManyToMany
-//    @JoinTable(name = "review_likes",
-//            joinColumns = @JoinColumn(name = "review_id"),
-//            inverseJoinColumns = @JoinColumn(name = "user_id")
-//    )
-//    private Set<User> usersWithLikesOnReviews = new HashSet<>();
-//
-//    @ManyToMany
-//    @JoinTable(name = "review_dislikes",
-//            joinColumns = @JoinColumn(name = "review_id"),
-//            inverseJoinColumns = @JoinColumn(name = "user_id")
-//    )
-//    private Set<User> usersWithDislikesOnReviews = new HashSet<>();
-
     @ManyToOne
     @JoinColumn(name = "film_id")
     private Film film;
