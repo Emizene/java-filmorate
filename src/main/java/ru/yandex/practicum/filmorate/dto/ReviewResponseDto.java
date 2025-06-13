@@ -1,9 +1,6 @@
 package ru.yandex.practicum.filmorate.dto;
 
-import lombok.AllArgsConstructor;
 import lombok.Data;
-
-import java.util.Objects;
 
 @Data
 public class ReviewResponseDto {
@@ -18,10 +15,8 @@ public class ReviewResponseDto {
         this.id = id;
         this.review = review;
         this.isPositive = isPositive;
-        this.useful = Objects.requireNonNullElse(useful, 0);
+        this.useful = useful;
         this.userId = userId;
         this.filmId = filmId;
     }
-
-    //TODO убрать конструктор в аннотацию, когда добавятся лайки
 }
