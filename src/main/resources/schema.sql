@@ -57,37 +57,37 @@ CREATE TABLE IF NOT EXISTS reviews
    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE);
 
 CREATE TABLE review_rating
-   (id BIGINT NOT NULL,
+   (id        BIGINT NOT NULL,
    review_id BIGINT,
    CONSTRAINT pk_review_rating PRIMARY KEY (id));
 
-CREATE TABLE review_rating_users_dislikes
-  (review_rating_id  BIGINT NOT NULL,
-  users_dislikes_id BIGINT NOT NULL,
-  CONSTRAINT pk_review_rating_usersdislikes PRIMARY KEY (review_rating_id, users_dislikes_id));
+CREATE TABLE review_dislikes
+   (review_id BIGINT NOT NULL,
+   user_id   BIGINT NOT NULL,
+   CONSTRAINT pk_review_dislikes PRIMARY KEY (review_id, user_id));
 
-CREATE TABLE review_rating_users_likes
-  (review_rating_id BIGINT NOT NULL,
-  users_likes_id   BIGINT NOT NULL,
-  CONSTRAINT pk_review_rating_userslikes PRIMARY KEY (review_rating_id, users_likes_id));
+CREATE TABLE review_likes
+   (review_id BIGINT NOT NULL,
+   user_id   BIGINT NOT NULL,
+   CONSTRAINT pk_review_likes PRIMARY KEY (review_id, user_id));
 
-ALTER TABLE review_rating_users_dislikes
-    ADD CONSTRAINT uc_review_rating_users_dislikes_usersdislikes UNIQUE (users_dislikes_id);
+ALTER TABLE review_dislikes
+    ADD CONSTRAINT uc_review_dislikes_user UNIQUE (user_id);
 
-ALTER TABLE review_rating_users_likes
-    ADD CONSTRAINT uc_review_rating_users_likes_userslikes UNIQUE (users_likes_id);
+ALTER TABLE review_likes
+    ADD CONSTRAINT uc_review_likes_user UNIQUE (user_id);
 
 ALTER TABLE review_rating
     ADD CONSTRAINT FK_REVIEW_RATING_ON_REVIEW FOREIGN KEY (review_id) REFERENCES reviews (id);
 
-ALTER TABLE review_rating_users_dislikes
-    ADD CONSTRAINT fk_revratusedis_on_review_rating FOREIGN KEY (review_rating_id) REFERENCES review_rating (id);
+ALTER TABLE review_dislikes
+    ADD CONSTRAINT fk_revdis_on_review_rating FOREIGN KEY (review_id) REFERENCES review_rating (id);
 
-ALTER TABLE review_rating_users_dislikes
-    ADD CONSTRAINT fk_revratusedis_on_user FOREIGN KEY (users_dislikes_id) REFERENCES users (id);
+ALTER TABLE review_dislikes
+    ADD CONSTRAINT fk_revdis_on_user FOREIGN KEY (user_id) REFERENCES users (id);
 
-ALTER TABLE review_rating_users_likes
-    ADD CONSTRAINT fk_revratuselik_on_review_rating FOREIGN KEY (review_rating_id) REFERENCES review_rating (id);
+ALTER TABLE review_likes
+    ADD CONSTRAINT fk_revlik_on_review_rating FOREIGN KEY (review_id) REFERENCES review_rating (id);
 
-ALTER TABLE review_rating_users_likes
-    ADD CONSTRAINT fk_revratuselik_on_user FOREIGN KEY (users_likes_id) REFERENCES users (id);
+ALTER TABLE review_likes
+    ADD CONSTRAINT fk_revlik_on_user FOREIGN KEY (user_id) REFERENCES users (id);
