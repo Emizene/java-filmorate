@@ -59,9 +59,9 @@ public class FilmController {
         return filmService.addReview(review);
     }
 
-    @DeleteMapping("/reviews/{filmId}")
-    public void deleteReview(@PathVariable Long filmId) {
-        filmService.deleteReview(filmId);
+    @DeleteMapping("/reviews/{id}")
+    public void deleteReview(@PathVariable Long id) {
+        filmService.deleteReview(id);
     }
 
     @GetMapping("/reviews/{id}")
@@ -69,19 +69,19 @@ public class FilmController {
         return filmService.getReviewById(id);
     }
 
-//    @PutMapping("/reviews/{id}/like/{userId}")
-//    public ResponseEntity<Void> addLikeOnReview(@PathVariable Long id, @PathVariable Long userId) {
-//        return filmService.addLikeOnReview(id, userId);
-//    }
-//
-//    @PutMapping("/reviews/{id}/dislike/{userId}")
-//    public ResponseEntity<Void> addDislikeOnReview(@PathVariable Long id, @PathVariable Long userId) {
-//        return filmService.addDislikeOnReview(id, userId);
-//    }
-//
-//    @DeleteMapping("/reviews/{id}/like/{userId}")
-//    public ResponseEntity<Void> deleteLikeFromReview(@PathVariable Long id, @PathVariable Long userId) {
-//        return filmService.deleteLikeFromReview(id, userId);
-//    }
+    @PutMapping("/reviews/{id}/like/{userId}")
+    public ResponseEntity<Void> addLikeOnReview(@PathVariable Long id, @PathVariable Long userId) {
+        return filmService.addLikeOnReview(id, userId);
+    }
+
+    @PutMapping("/reviews/{id}/dislike/{userId}")
+    public ResponseEntity<Void> addDislikeOnReview(@PathVariable Long id, @PathVariable Long userId) {
+        return filmService.addDislikeOnReview(id, userId);
+    }
+
+    @DeleteMapping("/reviews/{id}/like/{userId}")
+    public ResponseEntity<Void> deleteLikeFromReview(@PathVariable Long id, @PathVariable Long userId) {
+        return filmService.deleteLikeFromReview(id, userId);
+    }
 
 }

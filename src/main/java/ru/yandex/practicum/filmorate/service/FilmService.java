@@ -32,6 +32,7 @@ public class FilmService {
     private final GenreMapper genreMapper;
     private final ReviewRepository reviewRepository;
     private final ReviewMapper reviewMapper;
+    private final ReviewRatingRepository ratingRepository;
     private static final LocalDate MIN_RELEASE_DATE = LocalDate.of(1895, 12, 28);
 
     public ResponseEntity<List<FilmResponseDto>> getAllFilms() {
@@ -251,6 +252,11 @@ public class FilmService {
         }
         Review entity = reviewMapper.toEntity(review);
         reviewRepository.save(entity);
+        ratingRepository.save(ReviewRating.builder()
+                .review(entity)
+                .usersLikes(new HashSet<>())
+                .usersDislikes(new HashSet<>())
+                .build());
         log.info("Отзыв к фильму с ID: {} успешно добавлен", review.getFilmId());
         return ResponseEntity.status(HttpStatus.CREATED).body(reviewMapper.toReviewDto(entity));
     }
@@ -275,157 +281,60 @@ public class FilmService {
         return ResponseEntity.ok(reviewMapper.toReviewDto(review));
     }
 
-//    @Transactional
-//    public ResponseEntity<Void> addLikeOnReview(Long id, Long userId) {
-//        Optional<ReviewRating> byReviewId = reviewRatingRepository.findByReviewId(id);
-//        if (byReviewId.isEmpty()) {
-//            throw new ValidationException("<UNK> <UNK> ID: %s <UNK> <UNK>".formatted(id));
-//        }
-//        ReviewRating reviewRating = byReviewId.get();
-//        reviewRating.getUsers().add(userRepository.findById(userId).orElseThrow());
-//        return ResponseEntity.ok().build();
-//        log.debug("Попытка добавить лайк: ID={}, userID={}", id, userId);
-//
-//        if (id == null || userId == null) {
-//            log.warn("Передан null ID: ID={}, userID={}", id, userId);
-//            throw new ValidationException("ID не может быть null");
-//        }
-//
-//        Review review = reviewRepository.findById(id)
-//                .orElseThrow(() -> {
-//                    log.error("Отзыв не найден: ID={}", id);
-//                    return new NotFoundException("Отзыв с id " + id + " не найден");
-//                });
-//
-//        User user = userRepository.findById(userId)
-//                .orElseThrow(() -> {
-//                    log.error("Пользователь не найден: ID={}", userId);
-//                    return new NotFoundException("Пользователь с id " + userId + " не найден");
-//                });
-//
-//        Set<User> usersWithLikesOnReviews = review.getUsersWithLikesOnReviews();
-//        if (usersWithLikesOnReviews.contains(user)) {
-//            log.warn("Повторный лайк: userID={} уже лайкал ID={}", userId, id);
-//            throw new ValidationException("Пользователь уже поставил лайк этому отзыву");
-//        }
-//
-//        usersWithLikesOnReviews.add(user);
-//        reviewRepository.save(review);
-//        log.info("Лайк добавлен: ID={}, userID={}", id, userId);
-//        return ResponseEntity.ok().build();
-//    }
+    public ResponseEntity<Void> addLikeOnReview(Long id, Long userId) {
+        log.debug("Попытка добавить лайк на отзыв: ID={}", id);
+        ReviewRating reviewRating = ratingRepository.findByReviewId(id).orElseThrow(() -> {
+            log.error("Отзыв не найден: ID={}", id);
+            return new NotFoundException("Отзыв с id " + id + " не найден");
+        });
 
-//    @Transactional
-//    public ResponseEntity<Void> addDislikeOnReview(Long id, Long userId) {
-//        log.debug("Попытка добавить дизлайк: ID={}, userID={}", id, userId);
-//
-//        if (id == null || userId == null) {
-//            log.warn("Передан null ID: ID={}, userID={}", id, userId);
-//            throw new ValidationException("ID не может быть null");
-//        }
-//
-//        Review review = reviewRepository.findById(id)
-//                .orElseThrow(() -> {
-//                    log.error("Отзыв не найден: ID={}", id);
-//                    return new NotFoundException("Отзыв с id " + id + " не найден");
-//                });
-//
-//        User user = userRepository.findById(userId)
-//                .orElseThrow(() -> {
-//                    log.error("Пользователь не найден: ID={}", userId);
-//                    return new NotFoundException("Пользователь с id " + userId + " не найден");
-//                });
-//
-//        Set<User> usersWithDislikesOnReviews = review.getUsersWithDislikesOnReviews();
-//        if (usersWithDislikesOnReviews.contains(user)) {
-//            log.warn("Повторный дизлайк: userID={} уже ставил дизлайк ID={}", userId, id);
-//            throw new ValidationException("Пользователь уже поставил дизлайк этому отзыву");
-//        }
-//
-//        usersWithDislikesOnReviews.add(user);
-//        reviewRepository.save(review);
-//        log.info("Лайк добавлен: ID={}, userID={}", id, userId);
-//        return ResponseEntity.ok().build();
-//    }
+        reviewRating.getUsersLikes().add(userRepository.findById(userId).orElseThrow(() -> {
+            log.error("Пользователь не найден: ID={}", userId);
+            return new NotFoundException("Пользователь с id " + userId + " не найден");
+        }));
 
-//    @Transactional
-//    public ResponseEntity<Void> deleteLikeFromReview(Long id, Long userId) {
-//        log.debug("Попытка удалить лайк с отзыва: ID={}, userID={}", id, userId);
-//
-//        if (id == null || userId == null) {
-//            log.warn("Передан null ID: filmID={}, userID={}", id, userId);
-//            throw new ValidationException("ID не был введен");
-//        }
-//
-//        Review review = reviewRepository.findById(id)
-//                .orElseThrow(() -> {
-//                    log.error("Отзыв не найден: ID={}", id);
-//                    return new NotFoundException("Отзыв с id " + id + " не найден");
-//                });
-//
-//        User user = userRepository.findById(userId)
-//                .orElseThrow(() -> {
-//                    log.error("Пользователь не найден: ID={}", userId);
-//                    return new NotFoundException("Пользователь с id " + userId + " не найден");
-//                });
-//
-//        Set<User> usersWithLikesOnReviews = review.getUsersWithLikesOnReviews();
-//        if (!usersWithLikesOnReviews.remove(user)) {
-//            log.warn("Лайк не найден: userID={} не лайкал отзыв iD={}", userId, id);
-//            throw new ValidationException("Пользователь не ставил лайк этому отзыву");
-//        }
-//
-//        reviewRepository.save(review);
-//        log.info("Лайк удален: ID={}, userID={}", id, userId);
-//        return ResponseEntity.ok().build();
-//    }
+        return ResponseEntity.ok().build();
+    }
 
-//        if (id == null) {
-//            log.warn("Передан null ID: ID={}", id);
-//            throw new ValidationException("ID не был введен");
-//        }
+    public ResponseEntity<Void> addDislikeOnReview(Long id, Long userId) {
+        log.debug("Попытка добавить дизлайк на отзыв: ID={}", id);
+        ReviewRating reviewRating = ratingRepository.findByReviewId(id).orElseThrow(() -> {
+            log.error("Отзыв не найден: ID={}", id);
+            return new NotFoundException("Отзыв с id " + id + " не найден");
+        });
 
-//        Film film = filmRepository.findById(filmId)
-//                .orElseThrow(() -> {
-//                    log.error("Фильм не найден: ID={}", filmId);
-//                    return new NotFoundException("Фильм с id " + filmId + " не найден");
-//                });
+        reviewRating.getUsersDislikes().add(userRepository.findById(userId).orElseThrow(() -> {
+            log.error("Пользователь не найден: ID={}", userId);
+            return new NotFoundException("Пользователь с id " + userId + " не найден");
+        }));
 
-//        Review review = reviewRepository.findById(id)
-//                .orElseThrow(() -> {
-//                    log.error("Отзыв не найден: ID={}", id);
-//                    return new NotFoundException("Отзыв с id " + id + " не найден");
-//                });
-//
-//        User user = userRepository.findById(userId)
-//                .orElseThrow(() -> {
-//                    log.error("Пользователь не найден: ID={}", userId);
-//                    return new NotFoundException("Пользователь с id " + userId + " не найден");
-//                });
-//
-//        Set<Review> userReviews = user.getReviews();
-//        if (!userReviews.remove(review)) {
-//            log.warn("Отзыв не найден: userID={} не оставлял отзыв ID={}", userId, id);
-//            throw new ValidationException("Пользователь не оставлял отзыв этому фильму");
-//        }
+        return ResponseEntity.ok().build();
+    }
 
-//        Set<Review> userReviews = film.getReviews();
-//        if (!userReviews.remove(review)) {
-//            log.warn("Отзыв не найден: userID={} не оставлял отзыв ID={}", userId, id);
-//            throw new ValidationException("Пользователь не оставлял отзыв этому фильму");
-//        }
+    public ResponseEntity<Void> deleteLikeFromReview(Long id, Long userId) {
+        log.debug("Попытка удалить лайк с отзыва: ID={}", id);
 
-//        reviewRepository.save(review);
-//        log.info("Отзыв удален: ID={}, userID={}", id, userId);
+        ReviewRating reviewRating = ratingRepository.findByReviewId(id)
+                .orElseThrow(() -> {
+                    log.error("Отзыв не найден: ID={}", id);
+                    return new NotFoundException("Отзыв с id " + id + " не найден");
+                });
 
-    //    public ResponseEntity<ReviewResponseDto> getReviewById(Long filmId) {
-    //        Film film = filmRepository.findById(filmId)
-    //                .orElseThrow(() -> new NotFoundException("Фильм с ID %s не найден".formatted(filmId)));
-    //
-    //        log.info("Найден фильм: ID={}, Название={}", filmId, film.getName());
-    //
-    //        return ResponseEntity.ok(filmMapper.toFilmDto(film));
-    //    }
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> {
+                    log.error("Пользователь не найден: ID={}", userId);
+                    return new NotFoundException("Пользователь с id " + userId + " не найден");
+                });
+
+        if (!reviewRating.getUsersLikes().remove(user)) {
+            log.warn("Пользователь {} не ставил лайк отзыву {}", userId, id);
+            throw new ValidationException("Пользователь не ставил лайк этому отзыву");
+        }
+
+        ratingRepository.save(reviewRating);
+        log.info("Лайк пользователя {} удален с отзыва {}", userId, id);
+        return ResponseEntity.ok().build();
+    }
 
     @Transactional
     public void deleteAllFilms() {
