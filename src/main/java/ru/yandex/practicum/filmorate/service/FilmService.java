@@ -35,6 +35,7 @@ public class FilmService {
     private final UserRepository userRepository;
     private final MpaRepository mpaRepository;
     private final GenreMapper genreMapper;
+    private final JdbcTemplate jdbcTemplate;
     private static final LocalDate MIN_RELEASE_DATE = LocalDate.of(1895, 12, 28);
 
     public ResponseEntity<List<FilmResponseDto>> getAllFilms() {
