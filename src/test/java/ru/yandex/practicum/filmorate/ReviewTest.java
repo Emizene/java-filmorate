@@ -46,6 +46,7 @@ class ReviewTest extends FilmorateApplicationTests {
 
         reviewService.deleteAllReviews();
     }
+    
     @Test
     void testSuccessAddReview() throws Exception {
         assertEquals(0, Objects.requireNonNull(reviewService.getAllReviews().getBody()).size());
