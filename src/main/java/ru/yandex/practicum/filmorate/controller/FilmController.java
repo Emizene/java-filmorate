@@ -52,4 +52,9 @@ public class FilmController {
         return filmService.getFilmById(filmId);
     }
 
+    @DeleteMapping("/{filmId}")
+    public ResponseEntity<Void> deleteFilmById(@PathVariable Long filmId) {
+        filmService.deleteFilm(filmId);
+        return ResponseEntity.noContent().build();
+    }
 }

@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.dao.FilmRepository;
 import ru.yandex.practicum.filmorate.dao.MpaRepository;
@@ -35,6 +36,16 @@ public class FilmService {
     private final MpaRepository mpaRepository;
     private final GenreMapper genreMapper;
     private static final LocalDate MIN_RELEASE_DATE = LocalDate.of(1895, 12, 28);
+
+    public ResponseEntity<List<FilmResponseDto>> getAllFilms() {
+        log.debug("Запрос всех фильмов");
+        List<FilmResponseDto> films = filmRepository.findAll().stream()
+                .map(filmMapper::toFilmDto)
+                .toList();
+
+        log.info("Возвращено {} фильмов", films.size());
+        return ResponseEntity.ok(films);
+    }
 
     @Transactional
     public ResponseEntity<FilmResponseDto> addFilm(ChangeFilmDto film) {
@@ -233,20 +244,30 @@ public class FilmService {
         return ResponseEntity.ok(filmMapper.toFilmDto(film));
     }
 
-    public ResponseEntity<List<FilmResponseDto>> getAllFilms() {
-        log.debug("Запрос всех фильмов");
-        List<FilmResponseDto> films = filmRepository.findAll().stream()
-                .map(filmMapper::toFilmDto)
-                .toList();
-
-        log.info("Возвращено {} фильмов", films.size());
-        return ResponseEntity.ok(films);
-    }
-
     @Transactional
     public void deleteAllFilms() {
         log.warn("Удаление всех фильмов");
         filmRepository.deleteAll();
         log.info("Все фильмы удалены");
+    }
+
+    public List<FilmResponseDto> getRecommendations(Long userId) {
+        List<Film> recommendations = filmRepository.findRecommendations(userId);
+        log.info("Возвращено {} рекомендованных фильмов", recommendations.size());
+        return filmMapper.toFilmDtoList(recommendations);
+    }
+
+    @Transactional
+    public void deleteFilm(long filmId) {
+        log.debug("Начато удаление фильма с ID {}", filmId);
+
+        if (!filmRepository.existsById(filmId)) {
+            log.error("Фильм с ID {} не найден", filmId);
+            throw new NotFoundException("Фильм с ID %s не найден".formatted(filmId));
+        }
+        jdbcTemplate.update("DELETE FROM film_genres WHERE film_id = ?", filmId);
+        jdbcTemplate.update("DELETE FROM likes WHERE film_id = ?", filmId);
+        filmRepository.deleteById(filmId);
+        log.info("Фильм с ID {} и все его зависимости успешно удалены", filmId);
     }
 }

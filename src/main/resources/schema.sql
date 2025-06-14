@@ -1,3 +1,11 @@
+DROP TABLE IF EXISTS user_friends CASCADE;
+DROP TABLE IF EXISTS likes CASCADE;
+DROP TABLE IF EXISTS film_genres CASCADE;
+DROP TABLE IF EXISTS films CASCADE;
+DROP TABLE IF EXISTS users CASCADE;
+DROP TABLE IF EXISTS genres CASCADE;
+DROP TABLE IF EXISTS mpa_rating CASCADE;
+
 CREATE TABLE IF NOT EXISTS mpa_rating
     (id BIGINT PRIMARY KEY,
     name VARCHAR(50) NOT NULL);
@@ -28,7 +36,7 @@ CREATE TABLE IF NOT EXISTS films
     description TEXT,
     release_date DATE NOT NULL,
     duration BIGINT NOT NULL,
-    rating_id VARCHAR(10),
+    rating_id BIGINT,
     CONSTRAINT positive_duration CHECK (duration > 0),
     CONSTRAINT valid_release_date CHECK (release_date >= '1895-12-28'),
     FOREIGN KEY (rating_id) REFERENCES mpa_rating(id));
