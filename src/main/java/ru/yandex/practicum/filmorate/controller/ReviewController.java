@@ -8,6 +8,9 @@ import ru.yandex.practicum.filmorate.dto.ChangeReviewDto;
 import ru.yandex.practicum.filmorate.dto.ReviewResponseDto;
 import ru.yandex.practicum.filmorate.service.FilmService;
 
+import java.util.List;
+import java.util.Set;
+
 @RestController
 @RequestMapping("/reviews")
 @RequiredArgsConstructor
@@ -28,6 +31,11 @@ public class ReviewController {
     @GetMapping("/{id}")
     public ResponseEntity<ReviewResponseDto> getReviewById(@PathVariable Long id) {
         return filmService.getReviewById(id);
+    }
+
+    @GetMapping
+    public ResponseEntity<Set<ReviewResponseDto>> getReviewsToFilm(@RequestParam Long filmId) {
+        return filmService.getReviewsToFilm(filmId);
     }
 
     @PutMapping("/{id}/like/{userId}")

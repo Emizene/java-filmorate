@@ -28,6 +28,7 @@ public abstract class ReviewMapper {
 
     @Mapping(target = "user", expression = "java(userRepository.findById(changeReviewDto.getUserId()).orElseThrow())")
     @Mapping(target = "film", expression = "java(filmRepository.findById(changeReviewDto.getFilmId()).orElseThrow())")
+    @Mapping(target = "review", source = "content")
     public abstract Review toEntity(ChangeReviewDto changeReviewDto);
 
     @Named("mapUseful")

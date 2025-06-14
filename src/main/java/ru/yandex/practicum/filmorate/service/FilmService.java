@@ -20,6 +20,7 @@ import ru.yandex.practicum.filmorate.model.*;
 
 import java.time.LocalDate;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -345,11 +346,19 @@ public class FilmService {
         return ResponseEntity.ok().build();
     }
 
+    public ResponseEntity<Set<ReviewResponseDto>> getReviewsToFilm(Long filmId) {
+        Set<Review> reviews = reviewRepository.findAllByFilmId(filmId).orElse(new HashSet<>());
+        Set<ReviewResponseDto> collect = reviews.stream()
+                .map(reviewMapper::toReviewDto)
+                .collect(Collectors.toSet());
+        return ResponseEntity.ok(collect);
+    }
+
+
     @Transactional
     public void deleteAllFilms() {
         log.warn("Удаление всех фильмов");
         filmRepository.deleteAll();
         log.info("Все фильмы удалены");
     }
-
 }

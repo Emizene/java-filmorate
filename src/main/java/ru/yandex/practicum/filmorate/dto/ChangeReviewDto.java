@@ -6,8 +6,8 @@ import lombok.Data;
 @Data
 @AllArgsConstructor
 public class ChangeReviewDto {
-    private Long id;
-    private String review;
+    private Long reviewId;
+    private String content;
     private Boolean isPositive;
     private Integer useful;
     private Long userId;
