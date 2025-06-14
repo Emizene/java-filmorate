@@ -39,6 +39,6 @@ public class ReviewRating {
             joinColumns = @JoinColumn(name = "review_id"),
             inverseJoinColumns = @JoinColumn(name = "user_id")
     )
-    private Set<User> usersDislikes= new HashSet<>();
+    private Set<User> usersDislikes = new HashSet<>();
 
 }
