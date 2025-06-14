@@ -1,6 +1,7 @@
 package ru.yandex.practicum.filmorate.service;
 
 import jakarta.transaction.Transactional;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -31,9 +32,6 @@ public class FilmService {
     private final UserRepository userRepository;
     private final MpaRepository mpaRepository;
     private final GenreMapper genreMapper;
-    private final ReviewRepository reviewRepository;
-    private final ReviewMapper reviewMapper;
-    private final ReviewRatingRepository ratingRepository;
     private static final LocalDate MIN_RELEASE_DATE = LocalDate.of(1895, 12, 28);
 
     public ResponseEntity<List<FilmResponseDto>> getAllFilms() {
@@ -242,118 +240,6 @@ public class FilmService {
 
         return ResponseEntity.ok(filmMapper.toFilmDto(film));
     }
-
-    @Transactional
-    public ResponseEntity<ReviewResponseDto> addReview(ChangeReviewDto review) {
-        log.info("Попытка добавить отзыв к фильму: {}", review.getFilmId());
-        Optional<Review> oldReview = reviewRepository.findByUserIdAndFilmId(review.getUserId(), review.getFilmId());
-        if (oldReview.isPresent()) {
-            throw new ValidationException("Пользователь с ID: %s уже оставил отзыв к фильму с ID: %s"
-                    .formatted(review.getFilmId(), review.getUserId()));
-        }
-        Review entity = reviewMapper.toEntity(review);
-        reviewRepository.save(entity);
-        ratingRepository.save(ReviewRating.builder()
-                .review(entity)
-                .usersLikes(new HashSet<>())
-                .usersDislikes(new HashSet<>())
-                .build());
-        log.info("Отзыв к фильму с ID: {} успешно добавлен", review.getFilmId());
-        return ResponseEntity.status(HttpStatus.CREATED).body(reviewMapper.toReviewDto(entity));
-    }
-
-    @Transactional
-    public ResponseEntity<Void> deleteReview(Long id) {
-        log.debug("Попытка удалить отзыв: ID={}", id);
-
-        Review review = reviewRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("Отзыв с ID %s не найден".formatted(id)));
-
-        reviewRepository.delete(review);
-        return ResponseEntity.ok().build();
-    }
-
-    public ResponseEntity<ReviewResponseDto> getReviewById(Long id) {
-        Review review = reviewRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("Отзыв с ID %s не найден".formatted(id)));
-
-        log.info("Найден отзыв: ID={}", id);
-
-        return ResponseEntity.ok(reviewMapper.toReviewDto(review));
-    }
-
-    public ResponseEntity<Void> addLikeOnReview(Long id, Long userId) {
-        log.debug("Попытка добавить лайк на отзыв: ID={}", id);
-        ReviewRating reviewRating = ratingRepository.findByReviewId(id).orElseThrow(() -> {
-            log.error("Отзыв не найден: ID={}", id);
-            return new NotFoundException("Отзыв с id " + id + " не найден");
-        });
-
-        User user = userRepository.findById(userId).orElseThrow(() -> {
-            log.error("Пользователь не найден: ID={}", userId);
-            return new NotFoundException("Пользователь с id " + userId + " не найден");
-        });
-        reviewRating.getUsersLikes().add(user);
-        reviewRating.getUsersDislikes().remove(user);
-
-        ratingRepository.save(reviewRating);
-        return ResponseEntity.ok().build();
-
-        //return ResponseEntity.ok().body(reviewMapper.toReviewDto(reviewRepository.findById(id).orElse(null)));
-    }
-
-    public ResponseEntity<Void> addDislikeOnReview(Long id, Long userId) {
-        log.debug("Попытка добавить дизлайк на отзыв: ID={}", id);
-        ReviewRating reviewRating = ratingRepository.findByReviewId(id).orElseThrow(() -> {
-            log.error("Отзыв не найден: ID={}", id);
-            return new NotFoundException("Отзыв с id " + id + " не найден");
-        });
-
-        User user = userRepository.findById(userId).orElseThrow(() -> {
-            log.error("Пользователь не найден: ID={}", userId);
-            return new NotFoundException("Пользователь с id " + userId + " не найден");
-        });
-        reviewRating.getUsersDislikes().add(user);
-        reviewRating.getUsersLikes().remove(user);
-
-        ratingRepository.save(reviewRating);
-
-        return ResponseEntity.ok().build();
-    }
-
-    public ResponseEntity<Void> deleteLikeFromReview(Long id, Long userId) {
-        log.debug("Попытка удалить лайк с отзыва: ID={}", id);
-
-        ReviewRating reviewRating = ratingRepository.findByReviewId(id)
-                .orElseThrow(() -> {
-                    log.error("Отзыв не найден: ID={}", id);
-                    return new NotFoundException("Отзыв с id " + id + " не найден");
-                });
-
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> {
-                    log.error("Пользователь не найден: ID={}", userId);
-                    return new NotFoundException("Пользователь с id " + userId + " не найден");
-                });
-
-        if (!reviewRating.getUsersLikes().remove(user)) {
-            log.warn("Пользователь {} не ставил лайк отзыву {}", userId, id);
-            throw new ValidationException("Пользователь не ставил лайк этому отзыву");
-        }
-
-        ratingRepository.save(reviewRating);
-        log.info("Лайк пользователя {} удален с отзыва {}", userId, id);
-        return ResponseEntity.ok().build();
-    }
-
-    public ResponseEntity<Set<ReviewResponseDto>> getReviewsToFilm(Long filmId) {
-        Set<Review> reviews = reviewRepository.findAllByFilmId(filmId).orElse(new HashSet<>());
-        Set<ReviewResponseDto> collect = reviews.stream()
-                .map(reviewMapper::toReviewDto)
-                .collect(Collectors.toSet());
-        return ResponseEntity.ok(collect);
-    }
-
 
     @Transactional
     public void deleteAllFilms() {

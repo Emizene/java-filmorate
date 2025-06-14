@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.dto.ChangeReviewDto;
 import ru.yandex.practicum.filmorate.dto.ReviewResponseDto;
 import ru.yandex.practicum.filmorate.service.FilmService;
+import ru.yandex.practicum.filmorate.service.ReviewService;
 
 import java.util.List;
 import java.util.Set;
@@ -16,40 +17,45 @@ import java.util.Set;
 @RequiredArgsConstructor
 @Valid
 public class ReviewController {
-    private final FilmService filmService;
+    private final ReviewService reviewService;
 
     @PostMapping
     public ResponseEntity<ReviewResponseDto> addReview(@Valid @RequestBody ChangeReviewDto review) {
-        return filmService.addReview(review);
+        return reviewService.addReview(review);
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteReview(@PathVariable Long id) {
-        return filmService.deleteReview(id);
+        return reviewService.deleteReview(id);
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<ReviewResponseDto> getReviewById(@PathVariable Long id) {
-        return filmService.getReviewById(id);
+        return reviewService.getReviewById(id);
     }
 
     @GetMapping
     public ResponseEntity<Set<ReviewResponseDto>> getReviewsToFilm(@RequestParam Long filmId) {
-        return filmService.getReviewsToFilm(filmId);
+        return reviewService.getReviewsToFilm(filmId);
     }
 
     @PutMapping("/{id}/like/{userId}")
     public ResponseEntity<Void> addLikeOnReview(@PathVariable Long id, @PathVariable Long userId) {
-        return filmService.addLikeOnReview(id, userId);
+        return reviewService.addLikeOnReview(id, userId);
     }
 
     @PutMapping("/{id}/dislike/{userId}")
     public ResponseEntity<Void> addDislikeOnReview(@PathVariable Long id, @PathVariable Long userId) {
-        return filmService.addDislikeOnReview(id, userId);
+        return reviewService.addDislikeOnReview(id, userId);
     }
 
     @DeleteMapping("/{id}/like/{userId}")
     public ResponseEntity<Void> deleteLikeFromReview(@PathVariable Long id, @PathVariable Long userId) {
-        return filmService.deleteLikeFromReview(id, userId);
+        return reviewService.deleteLikeFromReview(id, userId);
+    }
+
+    @PutMapping
+    public ResponseEntity<ReviewResponseDto> updateReview(@Valid @RequestBody ChangeReviewDto review) {
+        return reviewService.updateReview(review);
     }
 }
