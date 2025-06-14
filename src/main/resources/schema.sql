@@ -68,7 +68,6 @@ CREATE TABLE IF NOT EXISTS review_dislikes
    FOREIGN KEY (review_id) REFERENCES review_rating(id) ON DELETE CASCADE,
    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE);
 
-
 CREATE TABLE IF NOT EXISTS review_likes
    (review_id BIGINT NOT NULL,
    user_id BIGINT NOT NULL,

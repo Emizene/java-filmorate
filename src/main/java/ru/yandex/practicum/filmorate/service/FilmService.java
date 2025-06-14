@@ -288,12 +288,17 @@ public class FilmService {
             return new NotFoundException("Отзыв с id " + id + " не найден");
         });
 
-        reviewRating.getUsersLikes().add(userRepository.findById(userId).orElseThrow(() -> {
+        User user = userRepository.findById(userId).orElseThrow(() -> {
             log.error("Пользователь не найден: ID={}", userId);
             return new NotFoundException("Пользователь с id " + userId + " не найден");
-        }));
+        });
+        reviewRating.getUsersLikes().add(user);
+        reviewRating.getUsersDislikes().remove(user);
 
+        ratingRepository.save(reviewRating);
         return ResponseEntity.ok().build();
+
+        //return ResponseEntity.ok().body(reviewMapper.toReviewDto(reviewRepository.findById(id).orElse(null)));
     }
 
     public ResponseEntity<Void> addDislikeOnReview(Long id, Long userId) {
@@ -303,10 +308,14 @@ public class FilmService {
             return new NotFoundException("Отзыв с id " + id + " не найден");
         });
 
-        reviewRating.getUsersDislikes().add(userRepository.findById(userId).orElseThrow(() -> {
+        User user = userRepository.findById(userId).orElseThrow(() -> {
             log.error("Пользователь не найден: ID={}", userId);
             return new NotFoundException("Пользователь с id " + userId + " не найден");
-        }));
+        });
+        reviewRating.getUsersDislikes().add(user);
+        reviewRating.getUsersLikes().remove(user);
+
+        ratingRepository.save(reviewRating);
 
         return ResponseEntity.ok().build();
     }

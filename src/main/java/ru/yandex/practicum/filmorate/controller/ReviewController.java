@@ -15,14 +15,14 @@ import ru.yandex.practicum.filmorate.service.FilmService;
 public class ReviewController {
     private final FilmService filmService;
 
-    @PostMapping()
+    @PostMapping
     public ResponseEntity<ReviewResponseDto> addReview(@Valid @RequestBody ChangeReviewDto review) {
         return filmService.addReview(review);
     }
 
     @DeleteMapping("/{id}")
-    public void deleteReview(@PathVariable Long id) {
-        filmService.deleteReview(id);
+    public ResponseEntity<Void> deleteReview(@PathVariable Long id) {
+        return filmService.deleteReview(id);
     }
 
     @GetMapping("/{id}")
@@ -31,7 +31,7 @@ public class ReviewController {
     }
 
     @PutMapping("/{id}/like/{userId}")
-    public ResponseEntity<ReviewResponseDto> addLikeOnReview(@PathVariable Long id, @PathVariable Long userId) {
+    public ResponseEntity<Void> addLikeOnReview(@PathVariable Long id, @PathVariable Long userId) {
         return filmService.addLikeOnReview(id, userId);
     }
 

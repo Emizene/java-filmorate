@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import jakarta.validation.Valid;
 import lombok.*;
 
+import java.util.HashSet;
 import java.util.Set;
 
 @Getter
@@ -17,6 +18,7 @@ import java.util.Set;
 public class ReviewRating {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @ManyToOne
@@ -29,7 +31,7 @@ public class ReviewRating {
             joinColumns = @JoinColumn(name = "review_id"),
             inverseJoinColumns = @JoinColumn(name = "user_id")
     )
-    private Set<User> usersLikes;
+    private Set<User> usersLikes = new HashSet<>();
 
     @OneToMany
     @JoinTable(
@@ -37,6 +39,6 @@ public class ReviewRating {
             joinColumns = @JoinColumn(name = "review_id"),
             inverseJoinColumns = @JoinColumn(name = "user_id")
     )
-    private Set<User> usersDislikes;
+    private Set<User> usersDislikes= new HashSet<>();
 
 }
