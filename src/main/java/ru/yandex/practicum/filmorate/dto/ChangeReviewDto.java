@@ -1,10 +1,8 @@
 package ru.yandex.practicum.filmorate.dto;
 
-import lombok.AllArgsConstructor;
 import lombok.Data;
 
 @Data
-@AllArgsConstructor
 public class ChangeReviewDto {
     private Long reviewId;
     private String content;
@@ -12,4 +10,11 @@ public class ChangeReviewDto {
     private Integer useful;
     private Long userId;
     private Long filmId;
+
+    public ChangeReviewDto(String content, Boolean isPositive, Long userId, Long filmId) {
+        this.content = content;
+        this.isPositive = isPositive;
+        this.userId = userId;
+        this.filmId = filmId;
+    }
 }

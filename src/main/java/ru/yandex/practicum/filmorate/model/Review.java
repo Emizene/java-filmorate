@@ -9,9 +9,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.util.HashSet;
-import java.util.Set;
-
 @Getter
 @Setter
 @NoArgsConstructor
@@ -26,7 +23,7 @@ public class Review {
     @NotEmpty(message = "Это поле обязательно для заполнения")
     @Size(max = 200, message = "Максимальная длина описания — 200 символов")
     @Column(length = 200)
-    private String review;
+    private String content;
 
     @NotNull
     private Boolean isPositive;

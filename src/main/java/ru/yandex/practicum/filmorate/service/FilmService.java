@@ -34,16 +34,6 @@ public class FilmService {
     private final GenreMapper genreMapper;
     private static final LocalDate MIN_RELEASE_DATE = LocalDate.of(1895, 12, 28);
 
-    public ResponseEntity<List<FilmResponseDto>> getAllFilms() {
-        log.debug("Запрос всех фильмов");
-        List<FilmResponseDto> films = filmRepository.findAll().stream()
-                .map(filmMapper::toFilmDto)
-                .toList();
-
-        log.info("Возвращено {} фильмов", films.size());
-        return ResponseEntity.ok(films);
-    }
-
     @Transactional
     public ResponseEntity<FilmResponseDto> addFilm(ChangeFilmDto film) {
         log.debug("Попытка добавить фильм: {}", film.getName());
@@ -239,6 +229,16 @@ public class FilmService {
         log.info("Найден фильм: ID={}, Название={}", filmId, film.getName());
 
         return ResponseEntity.ok(filmMapper.toFilmDto(film));
+    }
+
+    public ResponseEntity<List<FilmResponseDto>> getAllFilms() {
+        log.debug("Запрос всех фильмов");
+        List<FilmResponseDto> films = filmRepository.findAll().stream()
+                .map(filmMapper::toFilmDto)
+                .toList();
+
+        log.info("Возвращено {} фильмов", films.size());
+        return ResponseEntity.ok(films);
     }
 
     @Transactional

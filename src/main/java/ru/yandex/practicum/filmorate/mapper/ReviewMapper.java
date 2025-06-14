@@ -23,12 +23,13 @@ public abstract class ReviewMapper {
 
     @Mapping(target = "userId", source = "user.id")
     @Mapping(target = "filmId", source = "film.id")
+    @Mapping(target = "reviewId", source = "id")
     @Mapping(target = "useful", source = "review.id", qualifiedByName = "mapUseful")
     public abstract ReviewResponseDto toReviewDto(Review review);
 
     @Mapping(target = "user", expression = "java(userRepository.findById(changeReviewDto.getUserId()).orElseThrow())")
     @Mapping(target = "film", expression = "java(filmRepository.findById(changeReviewDto.getFilmId()).orElseThrow())")
-    @Mapping(target = "review", source = "content")
+    @Mapping(target = "id", source = "reviewId")
     public abstract Review toEntity(ChangeReviewDto changeReviewDto);
 
     @Named("mapUseful")

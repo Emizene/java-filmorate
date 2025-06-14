@@ -35,8 +35,9 @@ public class ReviewController {
     }
 
     @GetMapping
-    public ResponseEntity<Set<ReviewResponseDto>> getReviewsToFilm(@RequestParam Long filmId) {
-        return reviewService.getReviewsToFilm(filmId);
+    public ResponseEntity<Set<ReviewResponseDto>> getReviewsToFilm(@RequestParam(defaultValue = "10") int count,
+                                                                   @RequestParam(required = false) Long filmId) {
+        return reviewService.getReviewsToFilm(filmId, count);
     }
 
     @PutMapping("/{id}/like/{userId}")
@@ -52,6 +53,11 @@ public class ReviewController {
     @DeleteMapping("/{id}/like/{userId}")
     public ResponseEntity<Void> deleteLikeFromReview(@PathVariable Long id, @PathVariable Long userId) {
         return reviewService.deleteLikeFromReview(id, userId);
+    }
+
+    @DeleteMapping("/{id}/dislike/{userId}")
+    public ResponseEntity<Void> deleteDislikeFromReview(@PathVariable Long id, @PathVariable Long userId) {
+        return reviewService.deleteDislikeFromReview(id, userId);
     }
 
     @PutMapping

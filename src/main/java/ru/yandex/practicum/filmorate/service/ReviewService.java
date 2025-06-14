@@ -1,7 +1,6 @@
 package ru.yandex.practicum.filmorate.service;
 
 import jakarta.transaction.Transactional;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -20,6 +19,7 @@ import ru.yandex.practicum.filmorate.model.ReviewRating;
 import ru.yandex.practicum.filmorate.model.User;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -60,7 +60,9 @@ public class ReviewService {
         Review review = reviewRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Отзыв с ID %s не найден".formatted(id)));
 
+        ratingRepository.deleteById(id);
         reviewRepository.delete(review);
+
         return ResponseEntity.ok().build();
     }
 
@@ -140,10 +142,47 @@ public class ReviewService {
         return ResponseEntity.ok().build();
     }
 
-    public ResponseEntity<Set<ReviewResponseDto>> getReviewsToFilm(Long filmId) {
+    @Transactional
+    public ResponseEntity<Void> deleteDislikeFromReview(Long id, Long userId) {
+        log.debug("Попытка удалить лайк с отзыва: ID={}", id);
+
+        ReviewRating reviewRating = ratingRepository.findByReviewId(id)
+                .orElseThrow(() -> {
+                    log.error("Отзыв не найден: ID={}", id);
+                    return new NotFoundException("Отзыв с id " + id + " не найден");
+                });
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> {
+                    log.error("Пользователь не найден: ID={}", userId);
+                    return new NotFoundException("Пользователь с id " + userId + " не найден");
+                });
+
+        if (!reviewRating.getUsersDislikes().remove(user)) {
+            log.warn("Пользователь {} не ставил дилзайк отзыву {}", userId, id);
+            throw new ValidationException("Пользователь не ставил дилзайк этому отзыву");
+        }
+
+        ratingRepository.save(reviewRating);
+        log.info("Дизлайк пользователя {} удален с отзыва {}", userId, id);
+        return ResponseEntity.ok().build();
+    }
+
+    public ResponseEntity<Set<ReviewResponseDto>> getReviewsToFilm(Long filmId, int count) {
         log.debug("Попытка получить все отзывы на фильм с ID={}", filmId);
 
-        Set<Review> reviews = reviewRepository.findAllByFilmId(filmId).orElse(new HashSet<>());
+        if (filmId == null) {
+            Set<Review> reviews = new HashSet<>(reviewRepository.findAll());
+            Set<ReviewResponseDto> collect = reviews.stream()
+                    .map(reviewMapper::toReviewDto)
+                    .collect(Collectors.toSet());
+
+            log.debug("Возвращено {} отзывов", collect.size());
+            return ResponseEntity.ok(collect);
+        }
+
+        Set<Review> reviews = reviewRepository.findAllByFilmId(filmId).orElse(new HashSet<>())
+                .stream().limit(count).collect(Collectors.toSet());
         Set<ReviewResponseDto> collect = reviews.stream()
                 .map(reviewMapper::toReviewDto)
                 .collect(Collectors.toSet());
@@ -160,9 +199,9 @@ public class ReviewService {
         Review review = reviewRepository.findById(reviewId)
                 .orElseThrow(() -> new NotFoundException("Отзыв с ID %s не найден".formatted(reviewId)));
 
-        if (updatedReview.getContent() != null && !updatedReview.getContent().equals(review.getReview())) {
+        if (updatedReview.getContent() != null && !updatedReview.getContent().equals(review.getContent())) {
             log.debug("Обновление текста в отзыве");
-            review.setReview(updatedReview.getContent());
+            review.setContent(updatedReview.getContent());
         }
 
         if (updatedReview.getIsPositive() != null && !updatedReview.getIsPositive().equals(review.getIsPositive())) {
@@ -174,6 +213,23 @@ public class ReviewService {
 
         log.info("Отзыв с ID %s успешно обновлен".formatted(reviewId));
         return ResponseEntity.ok().body(reviewMapper.toReviewDto(review));
+    }
+
+    public ResponseEntity<List<ReviewResponseDto>> getAllReviews() {
+        log.debug("Запрос всех отзывов");
+        List<ReviewResponseDto> reviews = reviewRepository.findAll().stream()
+                .map(reviewMapper::toReviewDto)
+                .toList();
+
+        log.info("Возвращено {} фильмов", reviews.size());
+        return ResponseEntity.ok(reviews);
+    }
+
+    @Transactional
+    public void deleteAllReviews() {
+        log.warn("Удаление всех отзывов");
+        reviewRepository.deleteAll();
+        log.info("Все отзывы удалены");
     }
 
 }
