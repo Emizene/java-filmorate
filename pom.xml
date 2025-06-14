@@ -103,6 +103,25 @@
 					</annotationProcessorPaths>
 				</configuration>
 			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-checkstyle-plugin</artifactId>
+				<version>3.6.0</version>
+				<configuration>
+					<configLocation>checkstyle.xml</configLocation>
+					<failOnViolation>false</failOnViolation>    <!-- Завершать ли с ошибкой -->
+					<logViolationsToConsole>true</logViolationsToConsole>   <!-- Выводить ли в консоль -->
+					<includeTestSourceDirectory>true</includeTestSourceDirectory>   <!-- Включать ли проверку тестов-->
+				</configuration>
+				<executions>
+					<execution>
+						<goals>
+							<goal>check</goal>
+						</goals>
+						<phase>compile</phase>
+					</execution>
+				</executions>
+			</plugin>
 		</plugins>
 	</build>
 </project>
