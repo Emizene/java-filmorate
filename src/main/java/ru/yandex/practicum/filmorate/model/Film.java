@@ -40,9 +40,9 @@ public class Film {
 
     @Positive(message = "Продолжительность фильма должна быть положительным числом")
     @Column(nullable = false)
-    private Integer duration;
+    private long duration;
 
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne
     @JoinColumn(name = "rating_id")
     private Mpa mpaRating;
 
@@ -52,7 +52,7 @@ public class Film {
             joinColumns = @JoinColumn(name = "film_id"),
             inverseJoinColumns = @JoinColumn(name = "genre_id")
     )
-    private List<Genre> genres;
+    private List<Genre> genres = new ArrayList<>();
 
     @ManyToMany
     @JoinTable(

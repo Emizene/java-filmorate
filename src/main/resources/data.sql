@@ -1,7 +1,3 @@
-DELETE FROM mpa_rating;
-
-DELETE FROM genres;
-
 INSERT INTO mpa_rating(id, name)
 VALUES (1, 'G'),
        (2, 'PG'),

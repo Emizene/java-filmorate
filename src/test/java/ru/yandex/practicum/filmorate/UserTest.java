@@ -4,18 +4,19 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.transaction.annotation.Transactional;
 import ru.yandex.practicum.filmorate.dao.UserRepository;
 import ru.yandex.practicum.filmorate.dto.ChangeFilmDto;
 import ru.yandex.practicum.filmorate.dto.ChangeUserDto;
 import ru.yandex.practicum.filmorate.dto.GenreDto;
 import ru.yandex.practicum.filmorate.dto.MpaDto;
+import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
 
 import java.time.LocalDate;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -206,5 +207,66 @@ public class UserTest extends FilmorateApplicationTests {
                 .andExpect(status().isOk())
                 .andExpect(content().json("[]"));
     }
-}
 
+    @Test
+    @Transactional
+    void testDeleteNonExistingUser() {
+        long nonExistingId = 999L;
+
+        assertThrows(NotFoundException.class, () -> userService.deleteUser(nonExistingId));
+
+        Exception exception = assertThrows(NotFoundException.class,
+                () -> userService.deleteUser(nonExistingId));
+        assertTrue(exception.getMessage().contains("Пользователь с ID 999 не найден"));
+    }
+
+    @Test
+    @Transactional
+    void testDeleteUser() throws Exception {
+        // Создание пользователей
+        User friend1 = userRepository.save(new User("friend1@mail.com", "friend1",
+                "Friend One", LocalDate.of(1990, 1, 1)));
+        User friend2 = userRepository.save(new User("friend2@mail.com", "friend2",
+                "Friend Two", LocalDate.of(1992, 2, 2)));
+        // Пользователь который будет удален
+        User mainUser = userRepository.save(new User("main@mail.com", "main_user",
+                "Main User", LocalDate.of(1985, 5, 5)));
+
+        // Инициализация и установка связей
+        mainUser.setFriends(new HashSet<>());
+        mainUser.getFriends().add(friend1);
+        mainUser.getFriends().add(friend2);
+        friend1.setFriends(new HashSet<>());
+        friend1.getFriends().add(mainUser);
+
+        // Сохраняем пользователей и связи
+        userRepository.saveAll(List.of(mainUser, friend1, friend2));
+
+        Long userId = mainUser.getId();
+
+        // Проверка перед удалением
+        mockMvc.perform(get("/users/" + userId))
+                .andExpect(status().isOk());
+
+        // Удаляем пользователя
+        mockMvc.perform(delete("/users/" + userId))
+                .andExpect(status().isNoContent());
+
+        // Проверяем, что пользователь удален
+        mockMvc.perform(get("/users/" + userId))
+                .andExpect(status().isNotFound());
+
+        // Проверки дружеских связей - односторонняя модель
+        User reloadedFriend1 = userRepository.findById(friend1.getId()).orElseThrow();
+        User reloadedFriend2 = userRepository.findById(friend2.getId()).orElseThrow();
+
+        // Проверяем связи используя id
+        assertFalse(reloadedFriend1.getFriends().stream()
+                        .anyMatch(u -> u.getId().equals(userId)),
+                "Друг 1 все еще имеет связь");
+
+        assertFalse(reloadedFriend2.getFriends().stream()
+                        .anyMatch(u -> u.getId().equals(userId)),
+                "Друг 2 все еще имеет связь");
+    }
+}
