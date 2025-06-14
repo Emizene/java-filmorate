@@ -46,6 +46,7 @@ class ReviewTest extends FilmorateApplicationTests {
 
         reviewService.deleteAllReviews();
     }
+
     @Test
     void testSuccessAddReview() throws Exception {
         assertEquals(0, Objects.requireNonNull(reviewService.getAllReviews().getBody()).size());
@@ -165,8 +166,8 @@ class ReviewTest extends FilmorateApplicationTests {
         reviewService.addReview(review);
 
         mockMvc.perform(put("/reviews")
-                .contentType(APPLICATION_JSON)
-                .content("{\"reviewId\":1,\"content\":\"This film is bad.\",\"isPositive\":false,\"useful\":0,\"userId\":1,\"filmId\":1}"))
+                        .contentType(APPLICATION_JSON)
+                        .content("{\"reviewId\":1,\"content\":\"This film is bad.\",\"isPositive\":false,\"useful\":0,\"userId\":1,\"filmId\":1}"))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(content().json("{\"reviewId\":1,\"content\":\"This film is bad.\",\"isPositive\":false,\"useful\":0,\"userId\":1,\"filmId\":1}"));
