@@ -8,14 +8,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.dao.FilmRepository;
 import ru.yandex.practicum.filmorate.dao.UserRepository;
-import ru.yandex.practicum.filmorate.dto.ChangeUserDto;
-import ru.yandex.practicum.filmorate.dto.FilmResponseDto;
-import ru.yandex.practicum.filmorate.dto.UserResponseDto;
+import ru.yandex.practicum.filmorate.dto.*;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.mapper.UserMapper;
-import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.model.*;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -25,9 +22,10 @@ import java.util.stream.Collectors;
 @Service
 public class UserService {
     private final UserRepository userRepository;
+    private final FilmRepository filmRepository;
     private final UserMapper userMapper;
     private final FilmService filmService;
-    private final FilmRepository filmRepository;
+    private final EventService eventService;
 
     public ResponseEntity<List<UserResponseDto>> getAllUsers() {
         log.debug("Запрос всех пользователей");
@@ -139,6 +137,7 @@ public class UserService {
         user.getFriends().add(friend);
 
         userRepository.save(user);
+        eventService.createEvent(userId, EventType.FRIEND, EventOperation.ADD, friendId);
 
         log.info("Пользователь {} успешно добавлен в друзья к {}", friendId, userId);
         return ResponseEntity.ok().build();
@@ -154,6 +153,7 @@ public class UserService {
                 .orElseThrow(() -> new NotFoundException("Пользователь с ID %s не найден".formatted(friendId)));
 
         user.getFriends().remove(friend);
+        eventService.createEvent(userId, EventType.FRIEND, EventOperation.REMOVE, friendId);
 
         log.info("Пользователь {} удален из друзей у {}", friendId, userId);
         return ResponseEntity.ok().build();
@@ -244,5 +244,10 @@ public class UserService {
 
         // Удалить самого пользователя
         userRepository.delete(user);
+    }
+
+    public ResponseEntity<List<EventDto>> getUserEvents(Long userId) {
+        log.debug("Выполняется запрос на получение событий пользователя {}", userId);
+        return ResponseEntity.ok(eventService.getEvents(userId));
     }
 }

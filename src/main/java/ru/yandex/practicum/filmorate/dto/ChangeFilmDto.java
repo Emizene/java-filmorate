@@ -12,14 +12,14 @@ public class ChangeFilmDto {
     private String name;
     private String description;
     private LocalDate releaseDate;
-    private Integer duration;
+    private Long duration;
     private MpaDto mpa;
     private Set<GenreDto> genres;
     private List<Long> userWithLikesId;
     private Set<ReviewResponseDto> reviews;
 
     public ChangeFilmDto(String name, String description, LocalDate releaseDate,
-                         Integer duration, MpaDto mpa, Set<GenreDto> genres) {
+                         Long duration, MpaDto mpa, Set<GenreDto> genres) {
         this.name = name;
         this.description = description;
         this.releaseDate = releaseDate;

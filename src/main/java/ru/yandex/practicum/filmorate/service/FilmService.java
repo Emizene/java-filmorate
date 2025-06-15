@@ -7,19 +7,14 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
-import ru.yandex.practicum.filmorate.dao.FilmRepository;
-import ru.yandex.practicum.filmorate.dao.MpaRepository;
-import ru.yandex.practicum.filmorate.dao.UserRepository;
+import ru.yandex.practicum.filmorate.dao.*;
 import ru.yandex.practicum.filmorate.dto.ChangeFilmDto;
 import ru.yandex.practicum.filmorate.dto.FilmResponseDto;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.mapper.FilmMapper;
 import ru.yandex.practicum.filmorate.mapper.GenreMapper;
-import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.model.Genre;
-import ru.yandex.practicum.filmorate.model.Mpa;
-import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.model.*;
 
 import java.time.LocalDate;
 import java.util.Comparator;
@@ -31,11 +26,13 @@ import java.util.Objects;
 @Service
 public class FilmService {
     private final FilmRepository filmRepository;
-    private final FilmMapper filmMapper;
     private final UserRepository userRepository;
     private final MpaRepository mpaRepository;
+    private final FilmMapper filmMapper;
     private final GenreMapper genreMapper;
     private final JdbcTemplate jdbcTemplate;
+    private final EventService eventService;
+
     private static final LocalDate MIN_RELEASE_DATE = LocalDate.of(1895, 12, 28);
 
     public ResponseEntity<List<FilmResponseDto>> getAllFilms() {
@@ -183,6 +180,8 @@ public class FilmService {
 
         usersWithLikes.add(user);
         filmRepository.save(film);
+        eventService.createEvent(userId, EventType.LIKE, EventOperation.ADD, filmId);
+
         log.info("Лайк добавлен: filmID={}, userID={}", filmId, userId);
         return ResponseEntity.ok().build();
     }
@@ -215,6 +214,8 @@ public class FilmService {
         }
 
         filmRepository.save(film);
+        eventService.createEvent(userId, EventType.LIKE, EventOperation.REMOVE, filmId);
+
         log.info("Лайк удален: filmID={}, userID={}", filmId, userId);
         return ResponseEntity.ok().build();
     }

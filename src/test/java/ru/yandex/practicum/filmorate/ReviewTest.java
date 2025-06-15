@@ -36,7 +36,7 @@ class ReviewTest extends FilmorateApplicationTests {
         genreRepository.save(new Genre(1L, "Комедия"));
 
         ChangeFilmDto film1 = new ChangeFilmDto("Name 1", "Description 1",
-                LocalDate.of(2000, 7, 27), 120,
+                LocalDate.of(2000, 7, 27), 120L,
                 new MpaDto(1L, "G"), Set.of(new GenreDto(1L, "Комедия")));
         filmService.addFilm(film1);
 
