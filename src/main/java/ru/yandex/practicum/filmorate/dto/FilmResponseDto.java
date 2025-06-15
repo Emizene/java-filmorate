@@ -15,4 +15,5 @@ public class FilmResponseDto {
     private MpaDto mpa;
     private Set<GenreDto> genres;
     private int likes;
+    private Set<ReviewResponseDto> reviews;
 }
