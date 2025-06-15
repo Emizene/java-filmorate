@@ -92,8 +92,6 @@ public class ReviewService {
 
         ratingRepository.save(reviewRating);
         return ResponseEntity.ok().build();
-
-        //return ResponseEntity.ok().body(reviewMapper.toReviewDto(reviewRepository.findById(id).orElse(null)));
     }
 
     @Transactional
