@@ -317,7 +317,7 @@ public class FilmService {
             return ResponseEntity.ok(filmMapper.toFilmDtoList(films)); // Возвращаем успешный ответ с фильмами
         }
     }
-    
+
     public List<FilmResponseDto> getRecommendations(Long userId) {
         List<Film> recommendations = filmRepository.findRecommendations(userId);
         log.info("Возвращено {} рекомендованных фильмов", recommendations.size());
