@@ -75,9 +75,11 @@ public class FilmTest extends FilmorateApplicationTests {
         assertEquals(0, Objects.requireNonNull(filmService.getAllFilms().getBody()).size());
         mockMvc.perform(post("/films")
                         .contentType(APPLICATION_JSON)
-                        .content("{\"name\":\"Name 1\",\"description\":\"Description 1\",\"releaseDate\":\"2000-07-27\",\"duration\":120}"))
+                        .content("{\"name\":\"Name 1\",\"description\":\"Description 1\",\"releaseDate\":\"2000-07-27\"," +
+                                "\"duration\":120}"))
                 .andExpect(status().isCreated())
-                .andExpect(content().json("{\"name\":\"Name 1\",\"description\":\"Description 1\",\"releaseDate\":\"2000-07-27\",\"duration\":120}"));
+                .andExpect(content().json("{\"name\":\"Name 1\",\"description\":\"Description 1\"," +
+                        "\"releaseDate\":\"2000-07-27\",\"duration\":120}"));
     }
 
     @Test
@@ -88,14 +90,19 @@ public class FilmTest extends FilmorateApplicationTests {
 
         ChangeFilmDto film1 = new ChangeFilmDto("Name 1", "Description 1",
                 LocalDate.of(2000, 7, 27), 120L,
-                new MpaDto(1L, "G"), List.of(new DirectorDto(1L, "Гайдай")), Set.of(new GenreDto(1L, "Комедия")));
+                new MpaDto(1L, "G"), List.of(new DirectorDto(1L, "Гайдай")), Set.of(new GenreDto(1L,
+                "Комедия")));
         filmService.addFilm(film1);
         mockMvc.perform(put("/films")
                         .contentType(APPLICATION_JSON)
-                        .content("{\"id\":1,\"name\":\"New name 1\",\"description\":\"New description 1\",\"releaseDate\":\"2000-07-27\",\"duration\":120,\"mpa\":{\"id\":1,\"name\":\"G\"},\"directors\":[{\"id\":1,\"name\":\"Гайдай\"}],\"genres\":[{\"id\":1,\"name\":\"Комедия\"}],\"likes\":0}"))
+                        .content("{\"id\":1,\"name\":\"New name 1\",\"description\":\"New description 1\",\"releaseDate\":" +
+                                "\"2000-07-27\",\"duration\":120,\"mpa\":{\"id\":1,\"name\":\"G\"},\"directors\":[{\"id\":1," +
+                                "\"name\":\"Гайдай\"}],\"genres\":[{\"id\":1,\"name\":\"Комедия\"}],\"likes\":0}"))
                 .andDo(print())
                 .andExpect(status().isOk())
-                .andExpect(content().json("{\"id\":1,\"name\":\"New name 1\",\"description\":\"New description 1\",\"releaseDate\":\"2000-07-27\",\"duration\":120,\"mpa\":{\"id\":1,\"name\":\"G\"},\"directors\":[{\"id\":1,\"name\":\"Гайдай\"}],\"genres\":[{\"id\":1,\"name\":\"Комедия\"}],\"likes\":0}"));
+                .andExpect(content().json("{\"id\":1,\"name\":\"New name 1\",\"description\":\"New description 1\"," +
+                        "\"releaseDate\":\"2000-07-27\",\"duration\":120,\"mpa\":{\"id\":1,\"name\":\"G\"},\"directors\":" +
+                        "[{\"id\":1,\"name\":\"Гайдай\"}],\"genres\":[{\"id\":1,\"name\":\"Комедия\"}],\"likes\":0}"));
     }
 
     @Test
@@ -106,7 +113,8 @@ public class FilmTest extends FilmorateApplicationTests {
 
         ChangeFilmDto film1 = new ChangeFilmDto("Name 1", "Description 1",
                 LocalDate.of(2000, 7, 27), 120L,
-                new MpaDto(1L, "G"), List.of(new DirectorDto(1L, "Гайдай")), Set.of(new GenreDto(1L, "Комедия")));
+                new MpaDto(1L, "G"), List.of(new DirectorDto(1L, "Гайдай")), Set.of(new GenreDto(1L,
+                "Комедия")));
         filmService.addFilm(film1);
         ChangeUserDto user1 = new ChangeUserDto("email1@yandex.ru", "user1", "Ян",
                 LocalDate.of(1996, 12, 5));
@@ -115,9 +123,13 @@ public class FilmTest extends FilmorateApplicationTests {
 
         mockMvc.perform(put("/films")
                         .contentType(APPLICATION_JSON)
-                        .content("{\"id\":1,\"name\":\"Name 1\",\"description\":\"Description 1\",\"releaseDate\":\"2000-07-27\",\"duration\":120,\"mpa\":{\"id\":1,\"name\":\"G\"},\"directors\":[{\"id\":1,\"name\":\"Гайдай\"}],\"genres\":[{\"id\":1,\"name\":\"Комедия\"}],\"likes\":1}"))
+                        .content("{\"id\":1,\"name\":\"Name 1\",\"description\":\"Description 1\",\"releaseDate\":" +
+                                "\"2000-07-27\",\"duration\":120,\"mpa\":{\"id\":1,\"name\":\"G\"},\"directors\":[{\"id\":1," +
+                                "\"name\":\"Гайдай\"}],\"genres\":[{\"id\":1,\"name\":\"Комедия\"}],\"likes\":1}"))
                 .andExpect(status().isOk())
-                .andExpect(content().json("{\"id\":1,\"name\":\"Name 1\",\"description\":\"Description 1\",\"releaseDate\":\"2000-07-27\",\"duration\":120,\"mpa\":{\"id\":1,\"name\":\"G\"},\"directors\":[{\"id\":1,\"name\":\"Гайдай\"}],\"genres\":[{\"id\":1,\"name\":\"Комедия\"}],\"likes\":1}"));
+                .andExpect(content().json("{\"id\":1,\"name\":\"Name 1\",\"description\":\"Description 1\"," +
+                        "\"releaseDate\":\"2000-07-27\",\"duration\":120,\"mpa\":{\"id\":1,\"name\":\"G\"}," +
+                        "\"directors\":[{\"id\":1,\"name\":\"Гайдай\"}],\"genres\":[{\"id\":1,\"name\":\"Комедия\"}],\"likes\":1}"));
     }
 
     @Test
@@ -136,15 +148,22 @@ public class FilmTest extends FilmorateApplicationTests {
         filmService.addLike(1L, 1L);
         mockMvc.perform(put("/films")
                         .contentType(APPLICATION_JSON)
-                        .content("{\"id\":1,\"name\":\"Name 1\",\"description\":\"Description 1\",\"releaseDate\":\"2000-07-27\",\"duration\":120,\"mpa\":{\"id\":1,\"name\":\"G\"},\"directors\":[{\"id\":1,\"name\":\"Гайдай\"}],\"genres\":[{\"id\":1,\"name\":\"Комедия\"}],\"likes\":1}"))
+                        .content("{\"id\":1,\"name\":\"Name 1\",\"description\":\"Description 1\",\"releaseDate\":" +
+                                "\"2000-07-27\",\"duration\":120,\"mpa\":{\"id\":1,\"name\":\"G\"},\"directors\":[{\"id\":1," +
+                                "\"name\":\"Гайдай\"}],\"genres\":[{\"id\":1,\"name\":\"Комедия\"}],\"likes\":1}"))
                 .andExpect(status().isOk())
-                .andExpect(content().json("{\"id\":1,\"name\":\"Name 1\",\"description\":\"Description 1\",\"releaseDate\":\"2000-07-27\",\"duration\":120,\"mpa\":{\"id\":1,\"name\":\"G\"},\"directors\":[{\"id\":1,\"name\":\"Гайдай\"}],\"genres\":[{\"id\":1,\"name\":\"Комедия\"}],\"likes\":1}"));
+                .andExpect(content().json("{\"id\":1,\"name\":\"Name 1\",\"description\":\"Description 1\"," +
+                        "\"releaseDate\":\"2000-07-27\",\"duration\":120,\"mpa\":{\"id\":1,\"name\":\"G\"},\"directors\":" +
+                        "[{\"id\":1,\"name\":\"Гайдай\"}],\"genres\":[{\"id\":1,\"name\":\"Комедия\"}],\"likes\":1}"));
         filmService.deleteLike(1L, 1L);
         mockMvc.perform(put("/films")
                         .contentType(APPLICATION_JSON)
-                        .content("{\"id\":1,\"name\":\"Name 1\",\"description\":\"Description 1\",\"releaseDate\":\"2000-07-27\",\"duration\":120,\"mpa\":{\"id\":1,\"name\":\"G\"},\"directors\":[{\"id\":1,\"name\":\"Гайдай\"}],\"genres\":[{\"id\":1,\"name\":\"Комедия\"}],\"likes\":0}"))
+                        .content("{\"id\":1,\"name\":\"Name 1\",\"description\":\"Description 1\",\"releaseDate\":" +
+                                "\"2000-07-27\",\"duration\":120,\"mpa\":{\"id\":1,\"name\":\"G\"},\"directors\":[{\"id\":1,\"name\":\"Гайдай\"}],\"genres\":[{\"id\":1,\"name\":\"Комедия\"}],\"likes\":0}"))
                 .andExpect(status().isOk())
-                .andExpect(content().json("{\"id\":1,\"name\":\"Name 1\",\"description\":\"Description 1\",\"releaseDate\":\"2000-07-27\",\"duration\":120,\"mpa\":{\"id\":1,\"name\":\"G\"},\"directors\":[{\"id\":1,\"name\":\"Гайдай\"}],\"genres\":[{\"id\":1,\"name\":\"Комедия\"}],\"likes\":0}"));
+                .andExpect(content().json("{\"id\":1,\"name\":\"Name 1\",\"description\":\"Description 1\"," +
+                        "\"releaseDate\":\"2000-07-27\",\"duration\":120,\"mpa\":{\"id\":1,\"name\":\"G\"},\"directors\":" +
+                        "[{\"id\":1,\"name\":\"Гайдай\"}],\"genres\":[{\"id\":1,\"name\":\"Комедия\"}],\"likes\":0}"));
     }
 
     @Test
@@ -155,10 +174,12 @@ public class FilmTest extends FilmorateApplicationTests {
 
         ChangeFilmDto film1 = new ChangeFilmDto("Name 1", "Description 1",
                 LocalDate.of(2000, 7, 27), 120L,
-                new MpaDto(1L, "G"), List.of(new DirectorDto(1L, "Гайдай")), Set.of(new GenreDto(1L, "Комедия")));
+                new MpaDto(1L, "G"), List.of(new DirectorDto(1L, "Гайдай")), Set.of(new GenreDto(1L,
+                "Комедия")));
         ChangeFilmDto film2 = new ChangeFilmDto("Name 2", "Description 2",
                 LocalDate.of(2000, 7, 27), 120L,
-                new MpaDto(1L, "G"), List.of(new DirectorDto(1L, "Гайдай")), Set.of(new GenreDto(1L, "Комедия")));
+                new MpaDto(1L, "G"), List.of(new DirectorDto(1L, "Гайдай")), Set.of(new GenreDto(1L,
+                "Комедия")));
         filmService.addFilm(film1);
         filmService.addFilm(film2);
         ChangeUserDto user1 = new ChangeUserDto("email1@yandex.ru", "user1", "Ян",
@@ -170,7 +191,12 @@ public class FilmTest extends FilmorateApplicationTests {
         mockMvc.perform(get("/films/popular"))
                 .andDo(print())
                 .andExpect(status().isOk())
-                .andExpect(content().json("[{\"id\":1,\"name\":\"Name 1\",\"description\":\"Description 1\",\"releaseDate\":\"2000-07-27\",\"duration\":120,\"mpa\":{\"id\":1,\"name\":\"G\"},\"directors\":[{\"id\":1,\"name\":\"Гайдай\"}],\"genres\":[{\"id\":1,\"name\":\"Комедия\"}],\"likes\":1},{\"id\":2,\"name\":\"Name 2\",\"description\":\"Description 2\",\"releaseDate\":\"2000-07-27\",\"duration\":120,\"mpa\":{\"id\":1,\"name\":\"G\"},\"genres\":[{\"id\":1,\"name\":\"Комедия\"}],\"likes\":0}]"));
+                .andExpect(content().json("[{\"id\":1,\"name\":\"Name 1\",\"description\":\"Description 1\"," +
+                        "\"releaseDate\":\"2000-07-27\",\"duration\":120,\"mpa\":{\"id\":1,\"name\":\"G\"},\"directors\":" +
+                        "[{\"id\":1,\"name\":\"Гайдай\"}],\"genres\":[{\"id\":1,\"name\":\"Комедия\"}],\"likes\":1}," +
+                        "{\"id\":2,\"name\":\"Name 2\",\"description\":\"Description 2\",\"releaseDate\":\"2000-07-27\"," +
+                        "\"duration\":120,\"mpa\":{\"id\":1,\"name\":\"G\"},\"genres\":[{\"id\":1,\"name\":\"Комедия\"}]," +
+                        "\"likes\":0}]"));
 
     }
 
@@ -178,7 +204,8 @@ public class FilmTest extends FilmorateApplicationTests {
     public void testSuccessGetMpa() throws Exception {
         ChangeFilmDto film1 = new ChangeFilmDto("Name 1", "Description 1",
                 LocalDate.of(2000, 7, 27), 120L,
-                new MpaDto(1L, "G"), List.of(new DirectorDto(1L, "Гайдай")), Set.of(new GenreDto(1L, "Комедия")));
+                new MpaDto(1L, "G"), List.of(new DirectorDto(1L, "Гайдай")), Set.of(new GenreDto(1L,
+                "Комедия")));
         filmService.addFilm(film1);
 
         assertEquals("G", film1.getMpa().getName());
@@ -188,7 +215,8 @@ public class FilmTest extends FilmorateApplicationTests {
     public void testSuccessGetGenre() throws Exception {
         ChangeFilmDto film1 = new ChangeFilmDto("Name 1", "Description 1",
                 LocalDate.of(2000, 7, 27), 120L,
-                new MpaDto(1L, "G"), List.of(new DirectorDto(1L, "Гайдай")), Set.of(new GenreDto(1L, "Комедия")));
+                new MpaDto(1L, "G"), List.of(new DirectorDto(1L, "Гайдай")), Set.of(new GenreDto(1L,
+                "Комедия")));
         filmService.addFilm(film1);
 
         GenreDto genre = film1.getGenres().iterator().next();
