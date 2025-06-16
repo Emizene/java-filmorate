@@ -6,10 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.transaction.annotation.Transactional;
 import ru.yandex.practicum.filmorate.dao.UserRepository;
-import ru.yandex.practicum.filmorate.dto.ChangeFilmDto;
-import ru.yandex.practicum.filmorate.dto.ChangeUserDto;
-import ru.yandex.practicum.filmorate.dto.GenreDto;
-import ru.yandex.practicum.filmorate.dto.MpaDto;
+import ru.yandex.practicum.filmorate.dto.*;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
 
@@ -166,15 +163,15 @@ public class UserTest extends FilmorateApplicationTests {
     @Test
     void checkMethodGetRecommendations() throws Exception {
         ChangeFilmDto film1 = new ChangeFilmDto("Name 1", "Description 1",
-                LocalDate.of(2000, 7, 27), 120,
+                LocalDate.of(2000, 7, 27), 120L,
                 new MpaDto(1L, "G"), Set.of(new GenreDto(1L, "Комедия")));
         filmService.addFilm(film1);
         ChangeFilmDto film2 = new ChangeFilmDto("Name 2", "Description 2",
-                LocalDate.of(2000, 7, 27), 120,
+                LocalDate.of(2000, 7, 27), 120L,
                 new MpaDto(1L, "G"), Set.of(new GenreDto(1L, "Комедия")));
         filmService.addFilm(film2);
         ChangeFilmDto film3 = new ChangeFilmDto("Name 3", "Description 3",
-                LocalDate.of(2000, 7, 27), 120,
+                LocalDate.of(2000, 7, 27), 120L,
                 new MpaDto(1L, "G"), Set.of(new GenreDto(1L, "Комедия")));
         filmService.addFilm(film3);
         ChangeUserDto user1 = new ChangeUserDto("email1@yandex.ru", "user1", "Ян",
@@ -268,5 +265,44 @@ public class UserTest extends FilmorateApplicationTests {
         assertFalse(reloadedFriend2.getFriends().stream()
                         .anyMatch(u -> u.getId().equals(userId)),
                 "Друг 2 все еще имеет связь");
+    }
+
+    @Test
+    void checkMethodGetEventFeed() throws Exception {
+        ChangeUserDto user1 = new ChangeUserDto("email1@yandex.ru", "user1", "name1",
+                LocalDate.of(2000, 1, 1));
+        ChangeUserDto user2 = new ChangeUserDto("email2@yandex.ru", "user2", "name2",
+                LocalDate.of(2000, 2, 2));
+        ChangeFilmDto film = new ChangeFilmDto("Name 1", "Description 1",
+                LocalDate.of(2000, 7, 27), 120L,
+                new MpaDto(1L, "G"), Set.of(new GenreDto(1L, "Комедия")));
+
+        userService.createUser(user1);
+        userService.createUser(user2);
+        filmService.addFilm(film);
+        userService.addFriend(1L, 2L);
+        filmService.addLike(1L, 1L);
+        ChangeReviewDto review = new ChangeReviewDto("This film is good.", true, 1L, 1L);
+        reviewService.addReview(review);
+
+        userService.deleteFriend(1L, 2L);
+        filmService.deleteLike(1L, 1L);
+        reviewService.deleteReview(1L);
+
+        mockMvc.perform(get("/users/1/feed"))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].eventType").value("FRIEND"))
+                .andExpect(jsonPath("$[0].operation").value("ADD"))
+                .andExpect(jsonPath("$[1].eventType").value("LIKE"))
+                .andExpect(jsonPath("$[1].operation").value("ADD"))
+                .andExpect(jsonPath("$[2].eventType").value("REVIEW"))
+                .andExpect(jsonPath("$[2].operation").value("ADD"))
+                .andExpect(jsonPath("$[3].eventType").value("FRIEND"))
+                .andExpect(jsonPath("$[3].operation").value("REMOVE"))
+                .andExpect(jsonPath("$[4].eventType").value("LIKE"))
+                .andExpect(jsonPath("$[4].operation").value("REMOVE"))
+                .andExpect(jsonPath("$[5].eventType").value("REVIEW"))
+                .andExpect(jsonPath("$[5].operation").value("REMOVE"));
     }
 }

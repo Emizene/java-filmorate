@@ -6,17 +6,13 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import ru.yandex.practicum.filmorate.dao.ReviewRatingRepository;
-import ru.yandex.practicum.filmorate.dao.ReviewRepository;
-import ru.yandex.practicum.filmorate.dao.UserRepository;
+import ru.yandex.practicum.filmorate.dao.*;
 import ru.yandex.practicum.filmorate.dto.ChangeReviewDto;
 import ru.yandex.practicum.filmorate.dto.ReviewResponseDto;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.mapper.ReviewMapper;
-import ru.yandex.practicum.filmorate.model.Review;
-import ru.yandex.practicum.filmorate.model.ReviewRating;
-import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.model.*;
 
 import java.util.HashSet;
 import java.util.List;
@@ -29,9 +25,10 @@ import java.util.stream.Collectors;
 @Service
 public class ReviewService {
     private final ReviewRepository reviewRepository;
-    private final ReviewMapper reviewMapper;
     private final ReviewRatingRepository ratingRepository;
     private final UserRepository userRepository;
+    private final ReviewMapper reviewMapper;
+    private final EventService eventService;
 
     @Transactional
     public ResponseEntity<ReviewResponseDto> addReview(ChangeReviewDto review) {
@@ -48,6 +45,7 @@ public class ReviewService {
                 .usersLikes(new HashSet<>())
                 .usersDislikes(new HashSet<>())
                 .build());
+        eventService.createEvent(entity.getUser().getId(), EventType.REVIEW, EventOperation.ADD, entity.getId());
 
         log.info("Отзыв к фильму с ID: {} успешно добавлен", review.getFilmId());
         return ResponseEntity.status(HttpStatus.CREATED).body(reviewMapper.toReviewDto(entity));
@@ -62,6 +60,7 @@ public class ReviewService {
 
         ratingRepository.deleteById(id);
         reviewRepository.delete(review);
+        eventService.createEvent(review.getUser().getId(), EventType.REVIEW, EventOperation.REMOVE, review.getId());
 
         return ResponseEntity.ok().build();
     }
@@ -208,6 +207,7 @@ public class ReviewService {
         }
 
         reviewRepository.save(review);
+        eventService.createEvent(review.getUser().getId(), EventType.REVIEW, EventOperation.UPDATE, review.getId());
 
         log.info("Отзыв с ID %s успешно обновлен".formatted(reviewId));
         return ResponseEntity.ok().body(reviewMapper.toReviewDto(review));
@@ -229,5 +229,4 @@ public class ReviewService {
         reviewRepository.deleteAll();
         log.info("Все отзывы удалены");
     }
-
 }

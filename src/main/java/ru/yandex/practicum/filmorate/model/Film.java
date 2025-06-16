@@ -40,7 +40,7 @@ public class Film {
 
     @Positive(message = "Продолжительность фильма должна быть положительным числом")
     @Column(nullable = false)
-    private long duration;
+    private Long duration;
 
     @ManyToOne
     @JoinColumn(name = "rating_id")
