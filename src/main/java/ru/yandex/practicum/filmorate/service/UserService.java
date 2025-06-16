@@ -15,7 +15,6 @@ import ru.yandex.practicum.filmorate.mapper.UserMapper;
 import ru.yandex.practicum.filmorate.model.*;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -173,13 +172,8 @@ public class UserService {
                 .filter(user2Friends::contains)
                 .toList();
 
-        List<User> commonFriendUsers = commonFriends.stream()
-                .map(it -> userRepository.findById(it.getId()))
-                .map(Optional::orElseThrow)
-                .collect(Collectors.toList());
-
-        log.info("Найдено {} общих друзей между {} и {}", commonFriendUsers.size(), user1Id, user2Id);
-        return ResponseEntity.ok(userMapper.toUserDtoList(commonFriendUsers));
+        log.info("Найдено {} общих друзей между {} и {}", commonFriends.size(), user1Id, user2Id);
+        return ResponseEntity.ok(userMapper.toUserDtoList(commonFriends));
     }
 
     public ResponseEntity<List<UserResponseDto>> getFriends(Long userId) {

@@ -129,7 +129,7 @@ public class FilmTest extends FilmorateApplicationTests {
     }
 
     @Test
-    void testSuccessGerPopularFilms() throws Exception {
+    void testSuccessGetPopularFilms() throws Exception {
         mpaRepository.save(new Mpa(1L, "G"));
         genreRepository.save(new Genre(1L, "Комедия"));
 
@@ -262,5 +262,37 @@ public class FilmTest extends FilmorateApplicationTests {
                 () -> filmService.deleteFilm(999L));
 
         assertTrue(exception.getMessage().contains("Фильм с ID 999 не найден"));
+    }
+
+    @Test
+    public void testSuccessGetCommonFilms() throws Exception {
+        mpaRepository.save(new Mpa(1L, "G"));
+        genreRepository.save(new Genre(1L, "Комедия"));
+
+        ChangeFilmDto film1 = new ChangeFilmDto("Name 1", "Description 1",
+                LocalDate.of(2000, 7, 27), 120L,
+                new MpaDto(1L, "G"), Set.of(new GenreDto(1L, "Комедия")));
+        ChangeFilmDto film2 = new ChangeFilmDto("Name 2", "Description 2",
+                LocalDate.of(2000, 7, 27), 120L,
+                new MpaDto(1L, "G"), Set.of(new GenreDto(1L, "Комедия")));
+        filmService.addFilm(film1);
+        filmService.addFilm(film2);
+        ChangeUserDto user1 = new ChangeUserDto("email1@yandex.ru", "user1", "Ян",
+                LocalDate.of(1996, 12, 5));
+        ChangeUserDto user2 = new ChangeUserDto("email2@yandex.ru", "user2", "Ян2",
+                LocalDate.of(1996, 12, 5));
+        userService.createUser(user1);
+        userService.createUser(user2);
+
+        filmService.addLike(1L, 1L);
+        filmService.addLike(2L, 1L);
+        filmService.addLike(1L, 2L);
+
+        mockMvc.perform(get("/films/common")
+                        .param("userId", "1")
+                        .param("friendId", "2"))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(content().json("[{\"id\":1,\"name\":\"Name 1\",\"description\":\"Description 1\",\"releaseDate\":\"2000-07-27\",\"duration\":120,\"mpa\":{\"id\":1,\"name\":\"G\"},\"genres\":[{\"id\":1,\"name\":\"Комедия\"}],\"likes\":2,\"reviews\":[]}]"));
     }
 }
