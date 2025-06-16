@@ -16,4 +16,5 @@ public class FilmResponseDto {
     private List<DirectorDto> directors;
     private Set<GenreDto> genres;
     private int likes;
+    private Set<ReviewResponseDto> reviews;
 }

@@ -55,5 +55,15 @@ public class FilmController {
             @PathVariable Long directorId,
             @RequestParam(defaultValue = "year") String sortBy) {
         return filmService.findFilmsByDirectorSorted(directorId, sortBy);
+
+    @DeleteMapping("/{filmId}")
+    public ResponseEntity<Void> deleteFilmById(@PathVariable Long filmId) {
+        filmService.deleteFilm(filmId);
+        return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/common")
+    public ResponseEntity<List<FilmResponseDto>> getCommonFilms(@RequestParam Long userId, @RequestParam Long friendId) {
+        return filmService.getCommonFilms(userId, friendId);
     }
 }

@@ -43,7 +43,7 @@ public class Film {
     @Column(nullable = false)
     private Long duration;
 
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne
     @JoinColumn(name = "rating_id")
     private Mpa mpaRating;
 
@@ -61,7 +61,7 @@ public class Film {
             joinColumns = @JoinColumn(name = "film_id"),
             inverseJoinColumns = @JoinColumn(name = "genre_id")
     )
-    private List<Genre> genres;
+    private List<Genre> genres = new ArrayList<>();
 
     @ManyToMany
     @JoinTable(

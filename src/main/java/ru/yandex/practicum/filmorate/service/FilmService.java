@@ -7,11 +7,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
-import ru.yandex.practicum.filmorate.dao.DirectorRepository;
-import ru.yandex.practicum.filmorate.dao.FilmRepository;
-import ru.yandex.practicum.filmorate.dao.MpaRepository;
-import ru.yandex.practicum.filmorate.dao.UserRepository;
+import ru.yandex.practicum.filmorate.dao.*;
 import ru.yandex.practicum.filmorate.dto.ChangeFilmDto;
 import ru.yandex.practicum.filmorate.dto.FilmResponseDto;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
@@ -31,12 +29,15 @@ import java.util.stream.Collectors;
 public class FilmService {
 
     private final FilmRepository filmRepository;
-    private final FilmMapper filmMapper;
     private final UserRepository userRepository;
     private final MpaRepository mpaRepository;
     private final DirectorRepository directorRepository;
     private final DirectorMapper directorMapper;
+    private final FilmMapper filmMapper;
     private final GenreMapper genreMapper;
+    private final JdbcTemplate jdbcTemplate;
+    private final EventService eventService;
+
     private static final LocalDate MIN_RELEASE_DATE = LocalDate.of(1895, 12, 28);
     private final DirectorService directorService;
 
@@ -198,6 +199,8 @@ public class FilmService {
 
         usersWithLikes.add(user);
         filmRepository.save(film);
+        eventService.createEvent(userId, EventType.LIKE, EventOperation.ADD, filmId);
+
         log.info("Лайк добавлен: filmID={}, userID={}", filmId, userId);
         return ResponseEntity.ok().build();
     }
@@ -230,6 +233,8 @@ public class FilmService {
         }
 
         filmRepository.save(film);
+        eventService.createEvent(userId, EventType.LIKE, EventOperation.REMOVE, filmId);
+
         log.info("Лайк удален: filmID={}, userID={}", filmId, userId);
         return ResponseEntity.ok().build();
     }
@@ -312,5 +317,45 @@ public class FilmService {
             return ResponseEntity.ok(filmMapper.toFilmDtoList(films)); // Возвращаем успешный ответ с фильмами
         }
     }
-}
+    
+    public List<FilmResponseDto> getRecommendations(Long userId) {
+        List<Film> recommendations = filmRepository.findRecommendations(userId);
+        log.info("Возвращено {} рекомендованных фильмов", recommendations.size());
+        return filmMapper.toFilmDtoList(recommendations);
+    }
 
+    @Transactional
+    public void deleteFilm(long filmId) {
+        log.debug("Начато удаление фильма с ID {}", filmId);
+
+        if (!filmRepository.existsById(filmId)) {
+            log.error("Фильм с ID {} не найден", filmId);
+            throw new NotFoundException("Фильм с ID %s не найден".formatted(filmId));
+        }
+        jdbcTemplate.update("DELETE FROM film_genres WHERE film_id = ?", filmId);
+        jdbcTemplate.update("DELETE FROM likes WHERE film_id = ?", filmId);
+        filmRepository.deleteById(filmId);
+        log.info("Фильм с ID {} и все его зависимости успешно удалены", filmId);
+    }
+
+    public ResponseEntity<List<FilmResponseDto>> getCommonFilms(Long userId, Long friendId) {
+        log.debug("Запрос общих фильмов пользователя ID={} с другом ID={}", userId, friendId);
+
+        List<Film> userFilms = userRepository.findById(userId)
+                .map(User::getLikedFilms)
+                .orElse(new ArrayList<>());
+
+        List<Film> friendFilms = userRepository.findById(friendId)
+                .map(User::getLikedFilms)
+                .orElse(new ArrayList<>());
+
+        List<Film> commonFilms = userFilms.stream()
+                .filter(friendFilms::contains)
+                .sorted(Comparator.comparingInt((Film film) -> film.getUsersWithLikes().size()).reversed())
+                .toList();
+
+        log.info("Найдено {} общих фильмов между {} и {}", commonFilms.size(), userId, friendId);
+
+        return ResponseEntity.ok(filmMapper.toFilmDtoList(commonFilms));
+    }
+}
