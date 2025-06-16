@@ -77,7 +77,7 @@ public abstract class FilmMapper {
             throw new NotFoundException("Режиссёр с ID " + director.getId() + " не найден");
         }
     }
-    
+
     @Named("mapReview")
     Set<ReviewResponseDto> mapReview(Film film) {
         Set<Review> reviews = reviewRepository.findAllByFilmId(film.getId()).orElse(new HashSet<>());
