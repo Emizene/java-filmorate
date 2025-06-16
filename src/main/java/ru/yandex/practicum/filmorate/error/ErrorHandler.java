@@ -11,6 +11,7 @@ import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 
 import java.lang.reflect.InvocationTargetException;
+import java.util.NoSuchElementException;
 
 @Slf4j
 @RestControllerAdvice
@@ -49,5 +50,12 @@ public class ErrorHandler {
     public ErrorResponse handleIncorrectParameter(final InvocationTargetException e) {
         log.error("Ошибка валидации.", e);
         return new ErrorResponse("Ошибка валидации.", e.getMessage());
+    }
+
+    @ExceptionHandler(NoSuchElementException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ErrorResponse handleIncorrectParameter(final NoSuchElementException e) {
+        log.error("Ошибка с входным параметром.", e);
+        return new ErrorResponse("Ошибка с входным параметром.", e.getMessage());
     }
 }

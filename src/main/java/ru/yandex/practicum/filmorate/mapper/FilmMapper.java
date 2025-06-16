@@ -11,15 +11,19 @@ import ru.yandex.practicum.filmorate.dao.MpaRepository;
 import ru.yandex.practicum.filmorate.dto.*;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Director;
+import ru.yandex.practicum.filmorate.dao.ReviewRepository;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.Mpa;
-
+import ru.yandex.practicum.filmorate.model.Review;
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 
 @Slf4j
-@Mapper(componentModel = "spring", uses = {GenreMapper.class, MpaMapper.class, DirectorMapper.class})
+@Mapper(componentModel = "spring", uses = {GenreMapper.class, MpaMapper.class, DirectorMapper.class, ReviewMapper.class})
 public abstract class FilmMapper {
     @Autowired
     MpaRepository mpaRepository;
@@ -27,6 +31,10 @@ public abstract class FilmMapper {
     GenreRepository genreRepository;
     @Autowired
     DirectorRepository directorRepository;
+    @Autowired
+    ReviewRepository reviewRepository;
+    @Autowired
+    ReviewMapper reviewMapper;
 
     @Mapping(source = "mpa", target = "mpaRating", qualifiedByName = "mapMpaToEntity")
     @Mapping(source = "genres", target = "genres", qualifiedByName = "mapGenre")
@@ -37,6 +45,7 @@ public abstract class FilmMapper {
     @Mapping(source = "mpaRating", target = "mpa")
     @Mapping(source = "genres", target = "genres")
     @Mapping(source = "directors", target = "directors")
+    @Mapping(source = "film", target = "reviews", qualifiedByName = "mapReview")
     public abstract FilmResponseDto toFilmDto(Film film);
 
     public abstract List<FilmResponseDto> toFilmDtoList(List<Film> film);
@@ -54,9 +63,6 @@ public abstract class FilmMapper {
         return genreRepository.findById(genres.getId()).orElse(null);
     }
 
-
-
-
     @Named("mapDirector")
     Director mapDirector(DirectorDto director) {
         if (director == null || director.getId() == null) {
@@ -70,5 +76,13 @@ public abstract class FilmMapper {
             log.error("Режиссёр с ID {} не найден", director.getId());
             throw new NotFoundException("Режиссёр с ID " + director.getId() + " не найден");
         }
+    }
+    
+    @Named("mapReview")
+    Set<ReviewResponseDto> mapReview(Film film) {
+        Set<Review> reviews = reviewRepository.findAllByFilmId(film.getId()).orElse(new HashSet<>());
+        return reviews.stream()
+                .map(reviewMapper::toReviewDto)
+                .collect(Collectors.toSet());
     }
 }

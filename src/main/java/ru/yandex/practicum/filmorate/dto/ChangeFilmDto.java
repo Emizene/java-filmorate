@@ -18,9 +18,11 @@ public class ChangeFilmDto {
     private List<DirectorDto> directors;
     private Set<GenreDto> genres;
     private List<Long> userWithLikesId;
+    private Set<ReviewResponseDto> reviews;
 
     public ChangeFilmDto(String name, String description, LocalDate releaseDate,
-                         Long duration, MpaDto mpa, List<DirectorDto> directors, Set<GenreDto> genres) {
+            Long duration, MpaDto mpa, List<DirectorDto> directors, Set<GenreDto> genres) {
+
         this.name = name;
         this.description = description;
         this.releaseDate = releaseDate;
