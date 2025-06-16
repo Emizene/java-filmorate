@@ -22,9 +22,7 @@ import ru.yandex.practicum.filmorate.model.Mpa;
 import ru.yandex.practicum.filmorate.model.User;
 
 import java.time.LocalDate;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -270,5 +268,26 @@ public class FilmService {
         jdbcTemplate.update("DELETE FROM likes WHERE film_id = ?", filmId);
         filmRepository.deleteById(filmId);
         log.info("Фильм с ID {} и все его зависимости успешно удалены", filmId);
+    }
+
+    public ResponseEntity<List<FilmResponseDto>> getCommonFilms(Long userId, Long friendId) {
+        log.debug("Запрос общих фильмов пользователя ID={} с другом ID={}", userId, friendId);
+
+        List<Film> userFilms = userRepository.findById(userId)
+                .map(User::getLikedFilms)
+                .orElse(new ArrayList<>());
+
+        List<Film> friendFilms = userRepository.findById(friendId)
+                .map(User::getLikedFilms)
+                .orElse(new ArrayList<>());
+
+        List<Film> commonFilms = userFilms.stream()
+                .filter(friendFilms::contains)
+                .sorted(Comparator.comparingInt((Film film) -> film.getUsersWithLikes().size()).reversed())
+                .toList();
+
+        log.info("Найдено {} общих фильмов между {} и {}", commonFilms.size(), userId, friendId);
+
+        return ResponseEntity.ok(filmMapper.toFilmDtoList(commonFilms));
     }
 }

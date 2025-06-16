@@ -57,4 +57,9 @@ public class FilmController {
         filmService.deleteFilm(filmId);
         return ResponseEntity.noContent().build();
     }
+
+    @GetMapping("/common")
+    public ResponseEntity<List<FilmResponseDto>> getCommonFilms(@RequestParam Long userId, @RequestParam Long friendId) {
+        return filmService.getCommonFilms(userId, friendId);
+    }
 }
