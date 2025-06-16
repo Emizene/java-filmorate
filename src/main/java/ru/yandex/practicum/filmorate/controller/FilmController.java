@@ -55,6 +55,7 @@ public class FilmController {
             @PathVariable Long directorId,
             @RequestParam(defaultValue = "year") String sortBy) {
         return filmService.findFilmsByDirectorSorted(directorId, sortBy);
+    }
 
     @DeleteMapping("/{filmId}")
     public ResponseEntity<Void> deleteFilmById(@PathVariable Long filmId) {

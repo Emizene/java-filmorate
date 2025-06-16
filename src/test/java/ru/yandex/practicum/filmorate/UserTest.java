@@ -164,15 +164,15 @@ public class UserTest extends FilmorateApplicationTests {
     void checkMethodGetRecommendations() throws Exception {
         ChangeFilmDto film1 = new ChangeFilmDto("Name 1", "Description 1",
                 LocalDate.of(2000, 7, 27), 120L,
-                new MpaDto(1L, "G"), Set.of(new GenreDto(1L, "Комедия")));
+                new MpaDto(1L, "G"), List.of(new DirectorDto(1L, "Гайдай")), Set.of(new GenreDto(1L, "Комедия")));
         filmService.addFilm(film1);
         ChangeFilmDto film2 = new ChangeFilmDto("Name 2", "Description 2",
                 LocalDate.of(2000, 7, 27), 120L,
-                new MpaDto(1L, "G"), Set.of(new GenreDto(1L, "Комедия")));
+                new MpaDto(1L, "G"),  List.of(new DirectorDto(1L, "Гайдай")),Set.of(new GenreDto(1L, "Комедия")));
         filmService.addFilm(film2);
         ChangeFilmDto film3 = new ChangeFilmDto("Name 3", "Description 3",
                 LocalDate.of(2000, 7, 27), 120L,
-                new MpaDto(1L, "G"), Set.of(new GenreDto(1L, "Комедия")));
+                new MpaDto(1L, "G"),  List.of(new DirectorDto(1L, "Гайдай")),Set.of(new GenreDto(1L, "Комедия")));
         filmService.addFilm(film3);
         ChangeUserDto user1 = new ChangeUserDto("email1@yandex.ru", "user1", "Ян",
                 LocalDate.of(1996, 12, 5));
@@ -275,7 +275,7 @@ public class UserTest extends FilmorateApplicationTests {
                 LocalDate.of(2000, 2, 2));
         ChangeFilmDto film = new ChangeFilmDto("Name 1", "Description 1",
                 LocalDate.of(2000, 7, 27), 120L,
-                new MpaDto(1L, "G"), Set.of(new GenreDto(1L, "Комедия")));
+                new MpaDto(1L, "G"), List.of(new DirectorDto(1L, "Гайдай")), Set.of(new GenreDto(1L, "Комедия")));
 
         userService.createUser(user1);
         userService.createUser(user2);
