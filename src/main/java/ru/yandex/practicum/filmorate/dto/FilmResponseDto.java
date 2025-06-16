@@ -11,7 +11,7 @@ public class FilmResponseDto {
     private String name;
     private String description;
     private LocalDate releaseDate;
-    private Integer duration;
+    private Long duration;
     private MpaDto mpa;
     private Set<GenreDto> genres;
     private int likes;
