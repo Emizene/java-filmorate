@@ -12,6 +12,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 
 @Getter
 @Setter
@@ -40,11 +41,19 @@ public class Film {
 
     @Positive(message = "Продолжительность фильма должна быть положительным числом")
     @Column(nullable = false)
-    private Integer duration;
+    private Long duration;
 
     @ManyToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "rating_id")
     private Mpa mpaRating;
+
+    @ManyToMany(fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    @JoinTable(
+            name = "film_directors",
+            joinColumns = @JoinColumn(name = "film_id"),
+            inverseJoinColumns = @JoinColumn(name = "director_id")
+    )
+    private List<Director> directors = new ArrayList<>();
 
     @ManyToMany
     @JoinTable(
