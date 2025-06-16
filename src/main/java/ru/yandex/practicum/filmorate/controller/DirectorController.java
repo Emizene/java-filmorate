@@ -2,8 +2,11 @@ package ru.yandex.practicum.filmorate.controller;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.dto.DirectorDto;
+import ru.yandex.practicum.filmorate.dto.OnCreate;
+import ru.yandex.practicum.filmorate.dto.OnUpdate;
 import ru.yandex.practicum.filmorate.service.DirectorService;
 import java.util.List;
 
@@ -25,12 +28,12 @@ public class DirectorController {
     }
 
     @PostMapping
-    public ResponseEntity<DirectorDto> addDirector(@Valid @RequestBody DirectorDto director) {
+    public ResponseEntity<DirectorDto> addDirector(@Validated(OnCreate.class) @RequestBody DirectorDto director) {
         return directorService.addDirector(director);
     }
 
     @PutMapping
-    public ResponseEntity<DirectorDto> updateDirector(@Valid @RequestBody DirectorDto director) {
+    public ResponseEntity<DirectorDto> updateDirector(@Validated(OnUpdate.class) @RequestBody DirectorDto director) {
         return directorService.updateDirector(director);
     }
 

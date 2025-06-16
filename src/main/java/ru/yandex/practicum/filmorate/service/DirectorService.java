@@ -1,7 +1,6 @@
 package ru.yandex.practicum.filmorate.service;
 
 import jakarta.transaction.Transactional;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -55,12 +54,12 @@ public class DirectorService {
     }
 
     @Transactional
-    public ResponseEntity<DirectorDto> updateDirector(@Valid DirectorDto director) {
+    public ResponseEntity<DirectorDto> updateDirector(DirectorDto director) {
         log.debug("Попытка обновить режиссера ID={}", director.getId());
         Director existingDirector = directorRepository.findById(director.getId())
                 .orElseThrow(() -> new NotFoundException("Режиссер с id " + director.getId() + " не найден"));
 
-        if (director.getName() != null && !existingDirector.getName().equals(director.getName())) {
+        if (director.getName() != null && !director.getName().isEmpty() && !existingDirector.getName().equals(director.getName())) {
             if (directorRepository.existsByName(director.getName())) {
                 log.warn("Режиссер с таким именем уже существует: {}", director.getName());
                 throw new ValidationException("Режиссер с именем '" + director.getName() + "' уже существует");
@@ -68,6 +67,7 @@ public class DirectorService {
             log.debug("Обновление имени режиссера с '{}' на '{}'", existingDirector.getName(), director.getName());
             existingDirector.setName(director.getName());
         }
+
         directorRepository.save(existingDirector);
         log.info("Режиссер успешно обновлен: ID={}", director.getId());
         return ResponseEntity.ok().body(directorMapper.toDirectorDto(existingDirector));

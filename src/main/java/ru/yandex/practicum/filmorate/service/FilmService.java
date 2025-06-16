@@ -146,25 +146,33 @@ public class FilmService {
                 updateFilm.setGenres(uniqueGenres);
             }
         }
+
         if (film.getDirectors() != null) {
-            film.getDirectors().forEach(directorDto -> {
-                Optional<Director> existingDirector = directorRepository.findById(directorDto.getId());
-                if (existingDirector.isEmpty()) {
-                    directorService.addDirector(directorDto);
-                } else {
-                    directorService.updateDirector(directorDto);
-                }
-            });
-            List<Director> uniqueDirector = film.getDirectors().stream()
+            List<Director> unique = film.getDirectors().stream()
                     .distinct()
-                    .map(directorMapper::toEntity)
+                    .map(dir -> {
+                        Optional<Director> existingDirector = directorRepository.findById(dir.getId());
+                        if (existingDirector.isPresent()) {
+                            if (dir.getName() == null || dir.getName().isBlank()) {
+                                return existingDirector.get();
+                            }
+                            Director director = existingDirector.get();
+                            director.setName(dir.getName());
+                            return directorRepository.save(director);
+                        } else {
+                            if (dir.getName() == null || dir.getName().isBlank()) {
+                                throw new ValidationException("Имя режиссера обязательно!");
+                            }
+                            return directorRepository.save(directorMapper.toEntity(dir));
+                        }
+                    })
                     .collect(Collectors.toList());
 
-            if (!uniqueDirector.equals(updateFilm.getDirectors())) {
-                log.debug("Обновление режиссера фильма");
-                updateFilm.setDirectors(uniqueDirector);
+            if (!unique.equals(updateFilm.getDirectors())) {
+                updateFilm.setDirectors(unique);
             }
         }
+
         filmRepository.save(updateFilm);
         log.info("Фильм успешно обновлен: ID={}", film.getId());
         return ResponseEntity.ok().body(filmMapper.toFilmDto(updateFilm));
@@ -317,7 +325,7 @@ public class FilmService {
             return ResponseEntity.ok(filmMapper.toFilmDtoList(films)); // Возвращаем успешный ответ с фильмами
         }
     }
-    
+
     public List<FilmResponseDto> getRecommendations(Long userId) {
         List<Film> recommendations = filmRepository.findRecommendations(userId);
         log.info("Возвращено {} рекомендованных фильмов", recommendations.size());

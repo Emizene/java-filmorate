@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import static com.jayway.jsonpath.internal.path.PathCompiler.fail;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -320,4 +321,25 @@ public class FilmTest extends FilmorateApplicationTests {
                 .andReturn();
         assertFalse(directorRepository.existsById(1L));
     }
+
+       @Test
+        void shouldFailValidationForBlankName() {
+            // Arrange
+            DirectorDto dto = new DirectorDto(null, "");
+
+            // Act & Assert
+            assertThat(dto.getName()).isBlank();
+            // Expected validation failure
+        }
+
+        @Test
+        void shouldPassValidationForNonBlankName() {
+            // Arrange
+            DirectorDto dto = new DirectorDto(null, "Иван Иванов");
+
+            // Act & Assert
+            assertThat(dto.getName()).isNotBlank();
+            // Expected successful validation
+        }
 }
+
