@@ -3,7 +3,6 @@ package ru.yandex.practicum.filmorate.dto;
 import lombok.Data;
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Objects;
 import java.util.Set;
 
 @Data
@@ -30,18 +29,6 @@ public class ChangeFilmDto {
         this.mpa = mpa;
         this.genres = genres;
         this.directors = directors;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (o == null || getClass() != o.getClass()) return false;
-        ChangeFilmDto film = (ChangeFilmDto) o;
-        return Objects.equals(id, film.id);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hashCode(id);
     }
 }
 

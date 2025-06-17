@@ -282,14 +282,7 @@ public class FilmService {
 
     @Transactional
     public ResponseEntity<List<FilmResponseDto>> findFilmsByDirectorSorted(Long directorId, String sortBy) {
-        String param;
-        if (Objects.equals(sortBy, "likes")) {
-            param = "количеству лайков.";
-        } else {
-            param = "году выпуска";
-
-        }
-        log.debug("Попытка отсортировать фильмы режиссера c ID {} по {}", directorId, param);
+        log.debug("Попытка отсортировать фильмы режиссера c ID {} по параметру {}", directorId, sortBy);
         Optional<Director> optionalDirector = directorRepository.findById(directorId);
 
         if (optionalDirector.isEmpty()) {
