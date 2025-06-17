@@ -47,9 +47,6 @@ public class DirectorService {
             log.warn("Режиссер с таким именем уже существует: {}", director.getName());
             throw new ValidationException("Режиссер с именем '" + director.getName() + "' уже существует");
         }
-        if(director.getName().trim().isEmpty()) {
-            throw new ValidationException("Имя режиссера не может быть пустым");
-        }
         Director entity = directorMapper.toEntity(director);
         directorRepository.save(entity);
         log.info("Режиссер успешно добавлен: ID={}, Имя={}", entity.getId(), entity.getName());
