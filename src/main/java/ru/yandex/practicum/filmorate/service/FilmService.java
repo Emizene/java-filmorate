@@ -9,6 +9,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.RequestParam;
 import ru.yandex.practicum.filmorate.dao.*;
 import ru.yandex.practicum.filmorate.dto.ChangeFilmDto;
 import ru.yandex.practicum.filmorate.dto.FilmResponseDto;
@@ -247,19 +248,38 @@ public class FilmService {
         return ResponseEntity.ok().build();
     }
 
-    public ResponseEntity<List<FilmResponseDto>> getPopularFilms(int count) {
-        log.debug("Запрос популярных фильмов: count={}", count);
+    public ResponseEntity<List<FilmResponseDto>> getPopularFilms(int count,Long genreId, Integer year) {
+        log.debug("Запрос популярных фильмов: count={}, genreId={}, year={}", count, genreId, year);
 
         if (count <= 0) {
             log.warn("Некорректный параметр count: {}", count);
-            throw new ValidationException("Параметр count должен быть положительным числом");
+            throw new ValidationException("Параметр count должен быть положительным числом.");
+        }
+
+        if (genreId != null && (genreId < 1 || genreId > 6)) {
+            log.warn("Некорректный параметр genreId: {}", genreId);
+            throw new ValidationException("Всего 6 жанров. Выбрать число от 1 до 6.");
+        }
+
+        if (year != null && year < 1985) {
+            log.warn("Некорректный параметр year: {}", year);
+            throw new ValidationException("Год создания не раньше 1985.");
         }
 
         List<Film> popularFilms = filmRepository.findAll().stream()
+
+                .filter(film -> {
+                    if (genreId != null && film.getGenres().stream().noneMatch(g -> g.getId().equals(genreId))) {
+                        return false;
+                    }
+                    if (year != null && film.getReleaseDate().getYear() != year) {
+                        return false;
+                    }
+                    return true;
+                })
                 .sorted(Comparator.comparingInt((Film film) -> film.getUsersWithLikes().size()).reversed())
                 .limit(count)
                 .toList();
-
         log.info("Возвращено {} популярных фильмов", popularFilms.size());
         return ResponseEntity.ok(filmMapper.toFilmDtoList(popularFilms));
     }

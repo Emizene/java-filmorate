@@ -31,17 +31,5 @@ public class ChangeFilmDto {
         this.genres = genres;
         this.directors = directors;
     }
-
-    @Override
-    public boolean equals(Object o) {
-        if (o == null || getClass() != o.getClass()) return false;
-        ChangeFilmDto film = (ChangeFilmDto) o;
-        return Objects.equals(id, film.id);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hashCode(id);
-    }
 }
 
