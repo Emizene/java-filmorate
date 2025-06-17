@@ -1,7 +1,6 @@
 package ru.yandex.practicum.filmorate.service;
 
 import jakarta.transaction.Transactional;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -48,6 +47,9 @@ public class DirectorService {
             log.warn("Режиссер с таким именем уже существует: {}", director.getName());
             throw new ValidationException("Режиссер с именем '" + director.getName() + "' уже существует");
         }
+        if(director.getName().trim().isEmpty()) {
+            throw new ValidationException("Имя режиссера не может быть пустым");
+        }
         Director entity = directorMapper.toEntity(director);
         directorRepository.save(entity);
         log.info("Режиссер успешно добавлен: ID={}, Имя={}", entity.getId(), entity.getName());
@@ -55,7 +57,7 @@ public class DirectorService {
     }
 
     @Transactional
-    public ResponseEntity<DirectorDto> updateDirector(@Valid DirectorDto director) {
+    public ResponseEntity<DirectorDto> updateDirector(DirectorDto director) {
         log.debug("Попытка обновить режиссера ID={}", director.getId());
         Director existingDirector = directorRepository.findById(director.getId())
                 .orElseThrow(() -> new NotFoundException("Режиссер с id " + director.getId() + " не найден"));

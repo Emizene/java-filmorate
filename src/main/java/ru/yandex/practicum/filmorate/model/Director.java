@@ -2,7 +2,6 @@ package ru.yandex.practicum.filmorate.model;
 
 import jakarta.persistence.*;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import java.util.Objects;
 
@@ -19,7 +18,8 @@ public class Director {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotNull(message = "Имя режиссёра обязательно.")
+    //@NotBlank(message = "Имя режиссёра не может состоять из пробелов.")
+   // @NotNull(message = "Имя режиссёра обязательно.")
     private String name;
 
     @Override
