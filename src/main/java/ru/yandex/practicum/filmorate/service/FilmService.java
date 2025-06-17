@@ -9,7 +9,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.RequestParam;
 import ru.yandex.practicum.filmorate.dao.*;
 import ru.yandex.practicum.filmorate.dto.ChangeFilmDto;
 import ru.yandex.practicum.filmorate.dto.FilmResponseDto;
@@ -272,10 +271,7 @@ public class FilmService {
                     if (genreId != null && film.getGenres().stream().noneMatch(g -> g.getId().equals(genreId))) {
                         return false;
                     }
-                    if (year != null && film.getReleaseDate().getYear() != year) {
-                        return false;
-                    }
-                    return true;
+                    return year == null || film.getReleaseDate().getYear() == year;
                 })
                 .sorted(Comparator.comparingInt((Film film) -> film.getUsersWithLikes().size()).reversed())
                 .limit(count)
@@ -302,14 +298,8 @@ public class FilmService {
 
     @Transactional
     public ResponseEntity<List<FilmResponseDto>> findFilmsByDirectorSorted(Long directorId, String sortBy) {
-        String param;
-        if (Objects.equals(sortBy, "likes")) {
-            param = "количеству лайков.";
-        } else {
-            param = "году выпуска";
 
-        }
-        log.debug("Попытка отсортировать фильмы режиссера c ID {} по {}", directorId, param);
+        log.debug("Попытка отсортировать фильмы режиссера c ID {} по {}", directorId, sortBy);
         Optional<Director> optionalDirector = directorRepository.findById(directorId);
 
         if (optionalDirector.isEmpty()) {
