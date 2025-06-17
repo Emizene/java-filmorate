@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import ru.yandex.practicum.filmorate.dao.*;
 import ru.yandex.practicum.filmorate.dto.*;
@@ -176,6 +177,56 @@ public class FilmTest extends FilmorateApplicationTests {
     }
 
     @Test
+    public void testGetPopularFilms_FilteringByGenre_Year() throws Exception {
+        mpaRepository.save(new Mpa(1L, "G"));
+        genreRepository.save(new Genre(1L, "Комедия"));
+        genreRepository.save(new Genre(2L, "Драма"));
+        directorRepository.save(new Director(1L, "Гайдай"));
+
+        ChangeFilmDto film1 = new ChangeFilmDto("Name 1", "Description 1",
+                LocalDate.of(2000, 7, 27), 120L,
+                new MpaDto(1L, "G"), List.of(new DirectorDto(1L, "Гайдай")),
+                Set.of(new GenreDto(1L, "Комедия")));
+
+        ChangeFilmDto film2 = new ChangeFilmDto("Name 2", "Description 2",
+                LocalDate.of(2000, 7, 27), 120L,
+                new MpaDto(1L, "G"), List.of(new DirectorDto(1L, "Гайдай")),
+                Set.of(new GenreDto(2L, "Драма")));
+
+        ChangeFilmDto film3 = new ChangeFilmDto("Name 3", "Description 3",
+                LocalDate.of(2001, 7, 27), 120L,
+                new MpaDto(1L, "G"), List.of(new DirectorDto(1L, "Гайдай")),
+                Set.of(new GenreDto(1L, "Комедия")));
+
+        ChangeFilmDto film4 = new ChangeFilmDto("Name 4", "Description 4",
+                LocalDate.of(2000, 7, 27), 120L,
+                new MpaDto(1L, "G"), List.of(new DirectorDto(1L, "Гайдай")),
+                Set.of(new GenreDto(1L, "Комедия")));
+
+        filmService.addFilm(film1);
+        filmService.addFilm(film2);
+        filmService.addFilm(film3);
+        filmService.addFilm(film4);
+
+        ChangeUserDto user1 = new ChangeUserDto("email1@yandex.ru", "user1", "Ян",
+                LocalDate.of(1996, 12, 5));
+        userService.createUser(user1);
+
+        filmService.addLike(1L, 1L);
+        filmService.addLike(3L, 1L);
+
+        // Готовим запрос с фильтрами
+        ResultActions result = mockMvc.perform(get("/films/popular")
+                .param("count", "2")
+                .param("genreId", "1")
+                .param("year", "2000"));
+
+        result.andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(content().json("[{\"id\":1,\"name\":\"Name 1\", \"likes\":1},{\"id\":4,\"name\":\"Name 4\", \"likes\":0}]"));
+    }
+
+    @Test
     public void testSuccessGetMpa() throws Exception {
         ChangeFilmDto film1 = new ChangeFilmDto("Name 1", "Description 1",
                 LocalDate.of(2000, 7, 27), 120L,
@@ -322,24 +373,24 @@ public class FilmTest extends FilmorateApplicationTests {
         assertFalse(directorRepository.existsById(1L));
     }
 
-       @Test
-        void shouldFailValidationForBlankName() {
-            // Arrange
-            DirectorDto dto = new DirectorDto(null, "");
+    @Test
+    void shouldFailValidationForBlankName() {
+        // Arrange
+        DirectorDto dto = new DirectorDto(null, "");
 
-            // Act & Assert
-            assertThat(dto.getName()).isBlank();
-            // Expected validation failure
-        }
+        // Act & Assert
+        assertThat(dto.getName()).isBlank();
+        // Expected validation failure
+    }
 
-        @Test
-        void shouldPassValidationForNonBlankName() {
-            // Arrange
-            DirectorDto dto = new DirectorDto(null, "Иван Иванов");
+    @Test
+    void shouldPassValidationForNonBlankName() {
+        // Arrange
+        DirectorDto dto = new DirectorDto(null, "Иван Иванов");
 
-            // Act & Assert
-            assertThat(dto.getName()).isNotBlank();
-            // Expected successful validation
-        }
+        // Act & Assert
+        assertThat(dto.getName()).isNotBlank();
+        // Expected successful validation
+    }
 }
 

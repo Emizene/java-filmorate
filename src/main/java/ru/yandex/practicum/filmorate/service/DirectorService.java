@@ -34,7 +34,7 @@ public class DirectorService {
         log.debug("Запрос режиссера с ID: {}", id);
         Director director = directorRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Режиссер с ID %s не найден".formatted(id)));
-        String name = director.getName() != null ? director.getName() : "(Имя неизвестно)";
+        String name = director.getName();
         log.info("Найден режиссер: ID={}, Имя={}", id, name);
         return ResponseEntity.ok(directorMapper.toDirectorDto(director));
     }

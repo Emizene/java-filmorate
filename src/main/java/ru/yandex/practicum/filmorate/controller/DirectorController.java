@@ -1,5 +1,5 @@
 package ru.yandex.practicum.filmorate.controller;
-import jakarta.validation.Valid;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -13,7 +13,6 @@ import java.util.List;
 @RestController
 @RequestMapping("/directors")
 @RequiredArgsConstructor
-@Valid
 public class DirectorController {
     private final DirectorService directorService;
 
