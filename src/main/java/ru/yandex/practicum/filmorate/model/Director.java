@@ -18,8 +18,6 @@ public class Director {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    //@NotBlank(message = "Имя режиссёра не может состоять из пробелов.")
-   // @NotNull(message = "Имя режиссёра обязательно.")
     private String name;
 
     @Override
