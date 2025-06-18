@@ -11,6 +11,7 @@ import java.util.List;
 
 @Repository
 public interface FilmRepository extends JpaRepository<Film, Long>, JpaSpecificationExecutor<Film> {
+
     /**
      * Формируем таблицу max_common_id, в которой находим user_id пользователя с максимальным совпадением по лайкам.
      * В первом условии получаем список фильмов, которые лайкнул найденный для рекомендации пользователь.
