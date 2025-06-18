@@ -18,6 +18,7 @@ import ru.yandex.practicum.filmorate.model.*;
 
 import java.time.LocalDate;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -30,6 +31,7 @@ public class FilmService {
     private final GenreMapper genreMapper;
     private final JdbcTemplate jdbcTemplate;
     private final EventService eventService;
+    private final DirectorRepository directorRepository;
 
     private static final LocalDate MIN_RELEASE_DATE = LocalDate.of(1895, 12, 28);
 
@@ -290,5 +292,28 @@ public class FilmService {
         log.info("Найдено {} общих фильмов между {} и {}", commonFilms.size(), userId, friendId);
 
         return ResponseEntity.ok(filmMapper.toFilmDtoList(commonFilms));
+    }
+
+    // Поиск фильмов по названию, чьи имена начинаются с query
+    public List<Film> searchFilmsByTitle(String query) {
+        log.debug("Начат поиск фильмов начинающихся с {}", query);
+        return filmRepository.findByNameStartingWithIgnoreCase(query);
+    }
+
+    // Поиск фильмов по режиссёру, чьи имена начинаются с query
+    public List<Film> searchFilmsByDirector(String query) {
+        log.debug("Начат поиск режиссеров начинающихся с {}", query);
+        List<Director> directors = directorRepository.findByNameStartingWithIgnoreCase(query);
+
+        List<Long> directorIds = directors.stream()
+                .map(Director::getId)
+                .collect(Collectors.toList());
+        return filmRepository.findByDirectorIdIn(directorIds);
+    }
+
+    // Поиск по названию или режиссеру, чьи имена начинаются с query
+    public List<Film> searchFilmsByTitleOrDirector(String query) {
+        log.debug("Начат поиск фильмов и режиссеров начинающихся с {}", query);
+        return filmRepository.searchFilmsByTitleOrDirectorName(query);
     }
 }

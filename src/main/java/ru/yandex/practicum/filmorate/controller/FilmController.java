@@ -6,8 +6,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.dto.ChangeFilmDto;
 import ru.yandex.practicum.filmorate.dto.FilmResponseDto;
+import ru.yandex.practicum.filmorate.mapper.FilmMapper;
+import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.FilmService;
 
+import java.util.Arrays;
 import java.util.List;
 
 @RestController
@@ -16,6 +19,7 @@ import java.util.List;
 @Valid
 public class FilmController {
     private final FilmService filmService;
+    private final FilmMapper filmMapper;
 
     @GetMapping
     public ResponseEntity<List<FilmResponseDto>> getAllFilms() {
@@ -47,6 +51,12 @@ public class FilmController {
         return filmService.getPopularFilms(count);
     }
 
+    @GetMapping("/director/{directorId}")
+    public ResponseEntity<List<FilmResponseDto>> findFilmsByDirectorSorted(
+            @PathVariable Long directorId,
+            @RequestParam(defaultValue = "year") String sortBy) {
+        return filmService.findFilmsByDirectorSorted(directorId, sortBy);
+    }
     @GetMapping("/{filmId}")
     public ResponseEntity<FilmResponseDto> getFilmById(@PathVariable Long filmId) {
         return filmService.getFilmById(filmId);
@@ -61,5 +71,29 @@ public class FilmController {
     @GetMapping("/common")
     public ResponseEntity<List<FilmResponseDto>> getCommonFilms(@RequestParam Long userId, @RequestParam Long friendId) {
         return filmService.getCommonFilms(userId, friendId);
+    }
+
+    @GetMapping("/search")
+    public ResponseEntity<List<FilmResponseDto>> searchFilms(@RequestParam(name = "query") String query,
+                                                             @RequestParam(name = "by", defaultValue = "title") String by) {
+
+        List<Film> films;
+        List<String> searchBy = Arrays.asList(by.toLowerCase().split(","));
+
+        if (searchBy.contains("director") && searchBy.contains("title")) {
+            // Ищем по обоим полям
+            films = filmService.searchFilmsByTitleOrDirector(query);
+        } else if (searchBy.contains("director")) {
+            // Ищем только по режиссеру
+            films = filmService.searchFilmsByDirector(query);
+        } else if (searchBy.contains("title")) {
+            // Ищем только по названию
+            films = filmService.searchFilmsByTitle(query);
+        } else {
+            return ResponseEntity.badRequest().build();
+        }
+
+        List<FilmResponseDto> filmResponseDtos = filmMapper.toFilmDtoList(films);
+        return ResponseEntity.ok().body(filmResponseDtos);
     }
 }

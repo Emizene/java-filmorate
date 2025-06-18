@@ -1,6 +1,7 @@
 package ru.yandex.practicum.filmorate.dao;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -9,7 +10,7 @@ import ru.yandex.practicum.filmorate.model.Film;
 import java.util.List;
 
 @Repository
-public interface FilmRepository extends JpaRepository<Film, Long> {
+public interface FilmRepository extends JpaRepository<Film, Long>, JpaSpecificationExecutor<Film> {
     /**
      * Формируем таблицу max_common_id, в которой находим user_id пользователя с максимальным совпадением по лайкам.
      * В первом условии получаем список фильмов, которые лайкнул найденный для рекомендации пользователь.
@@ -41,4 +42,17 @@ public interface FilmRepository extends JpaRepository<Film, Long> {
             )
             """, nativeQuery = true)
     List<Film> findRecommendations(@Param("userId") Long userId);
+
+    // Поиск по названию фильма
+    List<Film> findByNameStartingWithIgnoreCase(String query);
+
+    // Поиск фильмов по ID режиссёров
+    List<Film> findByDirectorIdIn(List<Long> directorIds);
+
+    // Поиск фильмов по названию или режиссёру
+    @Query("SELECT DISTINCT f FROM Film f " +
+            "LEFT JOIN FETCH f.directors d " +
+            "WHERE (LOWER(f.name) LIKE LOWER(CONCAT(:query, '%')) " +
+            "OR LOWER(d.name) LIKE LOWER(CONCAT(:query, '%')))")
+    List<Film> searchFilmsByTitleOrDirectorName(@Param("query") String query);
 }
