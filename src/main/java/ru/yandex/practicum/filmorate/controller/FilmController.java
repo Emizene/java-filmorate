@@ -1,4 +1,5 @@
 package ru.yandex.practicum.filmorate.controller;
+
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -50,12 +51,6 @@ public class FilmController {
         return filmService.getPopularFilms(count);
     }
 
-    @GetMapping("/director/{directorId}")
-    public ResponseEntity<List<FilmResponseDto>> findFilmsByDirectorSorted(
-            @PathVariable Long directorId,
-            @RequestParam(defaultValue = "year") String sortBy) {
-        return filmService.findFilmsByDirectorSorted(directorId, sortBy);
-    }
     @GetMapping("/{filmId}")
     public ResponseEntity<FilmResponseDto> getFilmById(@PathVariable Long filmId) {
         return filmService.getFilmById(filmId);

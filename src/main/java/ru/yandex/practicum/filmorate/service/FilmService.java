@@ -37,7 +37,6 @@ public class FilmService {
     private final GenreMapper genreMapper;
     private final JdbcTemplate jdbcTemplate;
     private final EventService eventService;
-    private final DirectorRepository directorRepository;
 
     private static final LocalDate MIN_RELEASE_DATE = LocalDate.of(1895, 12, 28);
     private final DirectorService directorService;
@@ -361,24 +360,24 @@ public class FilmService {
         return ResponseEntity.ok(filmMapper.toFilmDtoList(commonFilms));
     }
 
-    // Поиск фильмов по названию, чьи имена начинаются с query
+    // Поиск фильмов по названию
     public List<Film> searchFilmsByTitle(String query) {
         log.debug("Начат поиск фильмов начинающихся с {}", query);
-        return filmRepository.findByNameStartingWithIgnoreCase(query);
+        return filmRepository.findByNameContainingIgnoreCase(query);
     }
 
-    // Поиск фильмов по режиссёру, чьи имена начинаются с query
+    // Поиск фильмов по режиссёру
     public List<Film> searchFilmsByDirector(String query) {
         log.debug("Начат поиск режиссеров начинающихся с {}", query);
-        List<Director> directors = directorRepository.findByNameStartingWithIgnoreCase(query);
+        List<Director> directors = directorRepository.findByNameContainingIgnoreCase(query);
 
         List<Long> directorIds = directors.stream()
                 .map(Director::getId)
                 .collect(Collectors.toList());
-        return filmRepository.findByDirectorIdIn(directorIds);
+        return filmRepository.findByDirectors_IdIn(directorIds);
     }
 
-    // Поиск по названию или режиссеру, чьи имена начинаются с query
+    // Поиск по названию или режиссеру
     public List<Film> searchFilmsByTitleOrDirector(String query) {
         log.debug("Начат поиск фильмов и режиссеров начинающихся с {}", query);
         return filmRepository.searchFilmsByTitleOrDirectorName(query);

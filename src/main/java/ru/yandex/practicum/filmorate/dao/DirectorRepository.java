@@ -5,13 +5,11 @@ import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.model.Director;
 
 import java.util.List;
+
 @Repository
 public interface DirectorRepository extends JpaRepository<Director, Long> {
     boolean existsByName(String name);
-}
 
-
-public interface DirectorRepository {
     // Поиск режиссёров по имени
-    List<Director> findByNameStartingWithIgnoreCase(String query);
+    List<Director> findByNameContainingIgnoreCase(String query);
 }
