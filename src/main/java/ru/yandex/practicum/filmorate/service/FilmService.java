@@ -298,8 +298,8 @@ public class FilmService {
 
     @Transactional
     public ResponseEntity<List<FilmResponseDto>> findFilmsByDirectorSorted(Long directorId, String sortBy) {
+        log.debug("Попытка отсортировать фильмы режиссера c ID {} по параметру {}", directorId, sortBy);
 
-        log.debug("Попытка отсортировать фильмы режиссера c ID {} по {}", directorId, sortBy);
         Optional<Director> optionalDirector = directorRepository.findById(directorId);
 
         if (optionalDirector.isEmpty()) {

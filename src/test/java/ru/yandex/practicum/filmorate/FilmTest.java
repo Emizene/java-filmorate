@@ -230,6 +230,7 @@ public class FilmTest extends FilmorateApplicationTests {
     public void testSuccessGetMpa() throws Exception {
         ChangeFilmDto film1 = new ChangeFilmDto("Name 1", "Description 1",
                 LocalDate.of(2000, 7, 27), 120L,
+
                 new MpaDto(1L, "G"), List.of(new DirectorDto(1L, "Гайдай")), Set.of(new GenreDto(1L, "Комедия")));
         filmService.addFilm(film1);
 
@@ -373,6 +374,7 @@ public class FilmTest extends FilmorateApplicationTests {
         assertFalse(directorRepository.existsById(1L));
     }
 
+
     @Test
     void shouldFailValidationForBlankName() {
         // Arrange
@@ -383,6 +385,7 @@ public class FilmTest extends FilmorateApplicationTests {
         // Expected validation failure
     }
 
+  
     @Test
     void shouldPassValidationForNonBlankName() {
         // Arrange
@@ -391,6 +394,6 @@ public class FilmTest extends FilmorateApplicationTests {
         // Act & Assert
         assertThat(dto.getName()).isNotBlank();
         // Expected successful validation
-    }
+    }  
 }
 
