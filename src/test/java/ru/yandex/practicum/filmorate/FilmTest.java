@@ -373,6 +373,7 @@ public class FilmTest extends FilmorateApplicationTests {
         assertFalse(directorRepository.existsById(1L));
     }
 
+
     @Test
     void shouldFailValidationForBlankName() {
         // Arrange
@@ -382,6 +383,7 @@ public class FilmTest extends FilmorateApplicationTests {
         assertThat(dto.getName()).isBlank();
         // Expected validation failure
     }
+
 
     @Test
     void shouldPassValidationForNonBlankName() {
@@ -393,4 +395,3 @@ public class FilmTest extends FilmorateApplicationTests {
         // Expected successful validation
     }
 }
-

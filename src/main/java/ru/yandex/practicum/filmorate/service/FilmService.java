@@ -298,8 +298,8 @@ public class FilmService {
 
     @Transactional
     public ResponseEntity<List<FilmResponseDto>> findFilmsByDirectorSorted(Long directorId, String sortBy) {
+        log.debug("Попытка отсортировать фильмы режиссера c ID {} по параметру {}", directorId, sortBy);
 
-        log.debug("Попытка отсортировать фильмы режиссера c ID {} по {}", directorId, sortBy);
         Optional<Director> optionalDirector = directorRepository.findById(directorId);
 
         if (optionalDirector.isEmpty()) {
@@ -335,7 +335,7 @@ public class FilmService {
             return ResponseEntity.ok(filmMapper.toFilmDtoList(films)); // Возвращаем успешный ответ с фильмами
         }
     }
-
+    
     public List<FilmResponseDto> getRecommendations(Long userId) {
         List<Film> recommendations = filmRepository.findRecommendations(userId);
         log.info("Возвращено {} рекомендованных фильмов", recommendations.size());
