@@ -11,6 +11,7 @@ import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.Mpa;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
@@ -37,7 +38,7 @@ class ReviewTest extends FilmorateApplicationTests {
 
         ChangeFilmDto film1 = new ChangeFilmDto("Name 1", "Description 1",
                 LocalDate.of(2000, 7, 27), 120L,
-                new MpaDto(1L, "G"), Set.of(new GenreDto(1L, "Комедия")));
+                new MpaDto(1L, "G"), List.of(new DirectorDto(1L, "Гайдай")), Set.of(new GenreDto(1L, "Комедия")));
         filmService.addFilm(film1);
 
         ChangeUserDto user1 = new ChangeUserDto("email1@yandex.ru", "user1", "Ян",

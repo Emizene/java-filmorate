@@ -1,5 +1,4 @@
 package ru.yandex.practicum.filmorate.controller;
-
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -7,7 +6,6 @@ import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.dto.ChangeFilmDto;
 import ru.yandex.practicum.filmorate.dto.FilmResponseDto;
 import ru.yandex.practicum.filmorate.service.FilmService;
-
 import java.util.List;
 
 @RestController
@@ -50,6 +48,13 @@ public class FilmController {
     @GetMapping("/{filmId}")
     public ResponseEntity<FilmResponseDto> getFilmById(@PathVariable Long filmId) {
         return filmService.getFilmById(filmId);
+    }
+
+    @GetMapping("/director/{directorId}")
+    public ResponseEntity<List<FilmResponseDto>> findFilmsByDirectorSorted(
+            @PathVariable Long directorId,
+            @RequestParam(defaultValue = "year") String sortBy) {
+        return filmService.findFilmsByDirectorSorted(directorId, sortBy);
     }
 
     @DeleteMapping("/{filmId}")
