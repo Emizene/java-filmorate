@@ -3,6 +3,7 @@ package ru.yandex.practicum.filmorate.model;
 import jakarta.persistence.*;
 import jakarta.validation.Valid;
 import lombok.*;
+
 import java.util.Objects;
 
 @Getter

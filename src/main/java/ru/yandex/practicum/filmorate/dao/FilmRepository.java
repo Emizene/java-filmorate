@@ -45,4 +45,16 @@ public interface FilmRepository extends JpaRepository<Film, Long>, JpaSpecificat
     List<Film> findRecommendations(@Param("userId") Long userId);
 
 
+
+    // Поиск по названию фильма
+    List<Film> findByNameContainingIgnoreCase(String query);
+
+    // Поиск фильмов по ID режиссёров
+    List<Film> findByDirectors_IdIn(List<Long> directorIds);
+
+    @Query("SELECT DISTINCT f FROM Film f " +
+            "LEFT JOIN FETCH f.directors d " +
+            "WHERE (LOWER(f.name) LIKE LOWER(CONCAT('%', :query, '%')) " +
+            "OR LOWER(d.name) LIKE LOWER(CONCAT('%', :query, '%')))")
+    List<Film> searchFilmsByTitleOrDirectorName(@Param("query") String query);
 }

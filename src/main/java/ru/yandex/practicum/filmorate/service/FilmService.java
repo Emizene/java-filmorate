@@ -374,4 +374,27 @@ public class FilmService {
 
         return ResponseEntity.ok(filmMapper.toFilmDtoList(commonFilms));
     }
+
+    // Поиск фильмов по названию
+    public List<Film> searchFilmsByTitle(String query) {
+        log.debug("Начат поиск фильмов с подстрокой {}", query);
+        return filmRepository.findByNameContainingIgnoreCase(query);
+    }
+
+    // Поиск фильмов по режиссёру
+    public List<Film> searchFilmsByDirector(String query) {
+        log.debug("Начат поиск режиссеров с подстрокой {}", query);
+        List<Director> directors = directorRepository.findByNameContainingIgnoreCase(query);
+
+        List<Long> directorIds = directors.stream()
+                .map(Director::getId)
+                .collect(Collectors.toList());
+        return filmRepository.findByDirectors_IdIn(directorIds);
+    }
+
+    // Поиск по названию или режиссеру
+    public List<Film> searchFilmsByTitleOrDirector(String query) {
+        log.debug("Начат поиск фильмов и режиссеров с подстрокой {}", query);
+        return filmRepository.searchFilmsByTitleOrDirectorName(query);
+    }
 }
