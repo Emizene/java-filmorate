@@ -146,7 +146,6 @@ public class FilmService {
                 updateFilm.setGenres(uniqueGenres);
             }
         }
-
         if (film.getDirectors() != null) {
             List<Director> unique = film.getDirectors().stream()
                     .distinct()
@@ -172,7 +171,6 @@ public class FilmService {
                 updateFilm.setDirectors(unique);
             }
         }
-
         filmRepository.save(updateFilm);
         log.info("Фильм успешно обновлен: ID={}", film.getId());
         return ResponseEntity.ok().body(filmMapper.toFilmDto(updateFilm));
