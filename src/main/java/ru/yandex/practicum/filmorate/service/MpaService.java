@@ -40,5 +40,4 @@ public class MpaService {
 
         return ResponseEntity.ok(mpaMapper.toMpaDto(mpa));
     }
-
 }

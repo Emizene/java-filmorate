@@ -13,7 +13,6 @@ import ru.yandex.practicum.filmorate.model.Mpa;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Objects;
-import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
@@ -38,7 +37,7 @@ class ReviewTest extends FilmorateApplicationTests {
 
         ChangeFilmDto film1 = new ChangeFilmDto("Name 1", "Description 1",
                 LocalDate.of(2000, 7, 27), 120L,
-                new MpaDto(1L, "G"), List.of(new DirectorDto(1L, "Гайдай")), Set.of(new GenreDto(1L, "Комедия")));
+                new MpaDto(1L, "G"), List.of(new DirectorDto(1L, "Гайдай")), List.of(new GenreDto(1L, "Комедия")));
         filmService.addFilm(film1);
 
         ChangeUserDto user1 = new ChangeUserDto("email1@yandex.ru", "user1", "Ян",
@@ -173,5 +172,4 @@ class ReviewTest extends FilmorateApplicationTests {
                 .andExpect(status().isOk())
                 .andExpect(content().json("{\"reviewId\":1,\"content\":\"This film is bad.\",\"isPositive\":false,\"useful\":0,\"userId\":1,\"filmId\":1}"));
     }
-
 }

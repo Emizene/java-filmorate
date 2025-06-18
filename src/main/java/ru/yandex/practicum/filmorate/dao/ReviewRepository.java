@@ -9,7 +9,6 @@ import java.util.Set;
 
 @Repository
 public interface ReviewRepository extends JpaRepository<Review, Long> {
-
     Optional<Review> findByUserIdAndFilmId(Long userId, Long filmId);
 
     Optional<Set<Review>> findAllByFilmId(Long filmId);

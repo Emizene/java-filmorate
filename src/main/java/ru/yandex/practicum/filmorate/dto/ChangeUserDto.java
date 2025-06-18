@@ -22,5 +22,4 @@ public class ChangeUserDto {
         this.name = name;
         this.birthday = birthday;
     }
-
 }

@@ -44,8 +44,6 @@ public interface FilmRepository extends JpaRepository<Film, Long>, JpaSpecificat
             """, nativeQuery = true)
     List<Film> findRecommendations(@Param("userId") Long userId);
 
-
-
     // Поиск по названию фильма
     List<Film> findByNameContainingIgnoreCase(String query);
 

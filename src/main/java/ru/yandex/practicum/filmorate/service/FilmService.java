@@ -14,9 +14,7 @@ import ru.yandex.practicum.filmorate.dto.ChangeFilmDto;
 import ru.yandex.practicum.filmorate.dto.FilmResponseDto;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
-import ru.yandex.practicum.filmorate.mapper.DirectorMapper;
-import ru.yandex.practicum.filmorate.mapper.FilmMapper;
-import ru.yandex.practicum.filmorate.mapper.GenreMapper;
+import ru.yandex.practicum.filmorate.mapper.*;
 import ru.yandex.practicum.filmorate.model.*;
 
 import java.time.LocalDate;
@@ -27,7 +25,6 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 @Service
 public class FilmService {
-
     private final FilmRepository filmRepository;
     private final UserRepository userRepository;
     private final MpaRepository mpaRepository;
@@ -37,9 +34,9 @@ public class FilmService {
     private final GenreMapper genreMapper;
     private final JdbcTemplate jdbcTemplate;
     private final EventService eventService;
+    private final DirectorService directorService;
 
     private static final LocalDate MIN_RELEASE_DATE = LocalDate.of(1895, 12, 28);
-    private final DirectorService directorService;
 
     public ResponseEntity<List<FilmResponseDto>> getAllFilms() {
         log.debug("Запрос всех фильмов");
@@ -170,6 +167,8 @@ public class FilmService {
             if (!unique.equals(updateFilm.getDirectors())) {
                 updateFilm.setDirectors(unique);
             }
+        } else {
+            updateFilm.setDirectors(new ArrayList<>());
         }
         filmRepository.save(updateFilm);
         log.info("Фильм успешно обновлен: ID={}", film.getId());
@@ -198,12 +197,9 @@ public class FilmService {
                 });
 
         List<User> usersWithLikes = film.getUsersWithLikes();
-        if (usersWithLikes.contains(user)) {
-            log.warn("Повторный лайк: userID={} уже лайкал filmID={}", userId, filmId);
-            throw new ValidationException("Пользователь уже поставил лайк этому фильму");
+        if (!usersWithLikes.contains(user)) {
+            usersWithLikes.add(user);
         }
-
-        usersWithLikes.add(user);
         filmRepository.save(film);
         eventService.createEvent(userId, EventType.LIKE, EventOperation.ADD, filmId);
 
@@ -245,7 +241,7 @@ public class FilmService {
         return ResponseEntity.ok().build();
     }
 
-    public ResponseEntity<List<FilmResponseDto>> getPopularFilms(int count,Long genreId, Integer year) {
+    public ResponseEntity<List<FilmResponseDto>> getPopularFilms(int count, Long genreId, Integer year) {
         log.debug("Запрос популярных фильмов: count={}, genreId={}, year={}", count, genreId, year);
 
         if (count <= 0) {

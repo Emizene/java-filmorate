@@ -14,7 +14,7 @@ public class FilmResponseDto {
     private Long duration;
     private MpaDto mpa;
     private List<DirectorDto> directors;
-    private Set<GenreDto> genres;
+    private List<GenreDto> genres;
     private int likes;
     private Set<ReviewResponseDto> reviews;
 }

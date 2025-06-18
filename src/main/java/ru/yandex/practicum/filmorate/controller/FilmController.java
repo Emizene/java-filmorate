@@ -10,8 +10,7 @@ import ru.yandex.practicum.filmorate.mapper.FilmMapper;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.FilmService;
 
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
 @RestController
 @RequestMapping("/films")
@@ -50,7 +49,7 @@ public class FilmController {
     public ResponseEntity<List<FilmResponseDto>> getPopularFilms(@RequestParam(defaultValue = "10") int count,
                                                                  @RequestParam(required = false) Long genreId,
                                                                  @RequestParam(required = false) Integer year) {
-        return filmService.getPopularFilms(count,genreId,year);
+        return filmService.getPopularFilms(count, genreId, year);
     }
 
     @GetMapping("/{filmId}")
@@ -96,8 +95,12 @@ public class FilmController {
             return ResponseEntity.badRequest().build();
         }
 
-
-        List<FilmResponseDto> filmResponseDtos = filmMapper.toFilmDtoList(films);
+        List<Film> sortedFilms = films.stream()
+                .sorted(Comparator.comparing(Film::getId).reversed())
+                .toList();
+        List<FilmResponseDto> filmResponseDtos = sortedFilms.stream()
+                .map(filmMapper::toFilmDto)
+                .toList();
         return ResponseEntity.ok().body(filmResponseDtos);
     }
 }

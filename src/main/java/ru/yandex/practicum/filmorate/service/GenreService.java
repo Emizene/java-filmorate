@@ -40,4 +40,3 @@ public class GenreService {
         return ResponseEntity.ok(genreMapper.toGenreDto(genre));
     }
 }
-

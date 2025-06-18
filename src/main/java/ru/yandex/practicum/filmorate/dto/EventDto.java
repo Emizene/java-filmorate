@@ -11,6 +11,7 @@ import java.time.Instant;
 @Data
 @Builder
 public class EventDto {
+    private Long eventId;
     private Long userId;
     private EventType eventType;
     private EventOperation operation;

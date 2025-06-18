@@ -242,6 +242,7 @@ public class UserService {
 
     public ResponseEntity<List<EventDto>> getUserEvents(Long userId) {
         log.debug("Выполняется запрос на получение событий пользователя {}", userId);
+        getUserById(userId);
         return ResponseEntity.ok(eventService.getEvents(userId));
     }
 }

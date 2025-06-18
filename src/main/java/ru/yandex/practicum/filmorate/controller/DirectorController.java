@@ -4,10 +4,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import ru.yandex.practicum.filmorate.dto.DirectorDto;
-import ru.yandex.practicum.filmorate.dto.OnCreate;
-import ru.yandex.practicum.filmorate.dto.OnUpdate;
+import ru.yandex.practicum.filmorate.dto.*;
 import ru.yandex.practicum.filmorate.service.DirectorService;
+
 import java.util.List;
 
 @RestController

@@ -1,4 +1,5 @@
 package ru.yandex.practicum.filmorate;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,16 +11,11 @@ import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilde
 import ru.yandex.practicum.filmorate.dao.*;
 import ru.yandex.practicum.filmorate.dto.*;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
-import ru.yandex.practicum.filmorate.model.Director;
-import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.model.Genre;
-import ru.yandex.practicum.filmorate.model.Mpa;
-import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.model.*;
+
 import java.time.LocalDate;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
+
 import static com.jayway.jsonpath.internal.path.PathCompiler.fail;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
@@ -30,7 +26,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
-public class FilmTest extends FilmorateApplicationTests {
+class FilmTest extends FilmorateApplicationTests {
 
     @Autowired
     MpaRepository mpaRepository;
@@ -53,14 +49,14 @@ public class FilmTest extends FilmorateApplicationTests {
     }
 
     @Test
-    public void testSuccessGetFilm() throws Exception {
+    void testSuccessGetFilm() throws Exception {
         mpaRepository.save(new Mpa(1L, "G"));
         genreRepository.save(new Genre(1L, "Комедия"));
         directorRepository.save(new Director(1L, "Гайдай"));
 
         ChangeFilmDto film1 = new ChangeFilmDto("Name 1", "Description 1",
                 LocalDate.of(2000, 7, 27), 120L,
-                new MpaDto(1L, "G"), List.of(new DirectorDto(1L, "Гайдай")), Set.of(new GenreDto(1L, "Комедия")));
+                new MpaDto(1L, "G"), List.of(new DirectorDto(1L, "Гайдай")), List.of(new GenreDto(1L, "Комедия")));
         filmService.addFilm(film1);
         mockMvc.perform(get("/films"))
                 .andDo(print())
@@ -69,7 +65,7 @@ public class FilmTest extends FilmorateApplicationTests {
     }
 
     @Test
-    public void testSuccessAddFilm() throws Exception {
+    void testSuccessAddFilm() throws Exception {
         assertEquals(0, Objects.requireNonNull(filmService.getAllFilms().getBody()).size());
         mockMvc.perform(post("/films")
                         .contentType(APPLICATION_JSON)
@@ -79,14 +75,14 @@ public class FilmTest extends FilmorateApplicationTests {
     }
 
     @Test
-    public void testSuccessUpdateFilm() throws Exception {
+    void testSuccessUpdateFilm() throws Exception {
         mpaRepository.save(new Mpa(1L, "G"));
         genreRepository.save(new Genre(1L, "Комедия"));
         directorRepository.save(new Director(1L, "Гайдай"));
 
         ChangeFilmDto film1 = new ChangeFilmDto("Name 1", "Description 1",
                 LocalDate.of(2000, 7, 27), 120L,
-                new MpaDto(1L, "G"), List.of(new DirectorDto(1L, "Гайдай")), Set.of(new GenreDto(1L, "Комедия")));
+                new MpaDto(1L, "G"), List.of(new DirectorDto(1L, "Гайдай")), List.of(new GenreDto(1L, "Комедия")));
         filmService.addFilm(film1);
         mockMvc.perform(put("/films")
                         .contentType(APPLICATION_JSON)
@@ -97,14 +93,14 @@ public class FilmTest extends FilmorateApplicationTests {
     }
 
     @Test
-    public void testSuccessAddLike() throws Exception {
+    void testSuccessAddLike() throws Exception {
         mpaRepository.save(new Mpa(1L, "G"));
         genreRepository.save(new Genre(1L, "Комедия"));
         directorRepository.save(new Director(1L, "Гайдай"));
 
         ChangeFilmDto film1 = new ChangeFilmDto("Name 1", "Description 1",
                 LocalDate.of(2000, 7, 27), 120L,
-                new MpaDto(1L, "G"), List.of(new DirectorDto(1L, "Гайдай")), Set.of(new GenreDto(1L, "Комедия")));
+                new MpaDto(1L, "G"), List.of(new DirectorDto(1L, "Гайдай")), List.of(new GenreDto(1L, "Комедия")));
         filmService.addFilm(film1);
         ChangeUserDto user1 = new ChangeUserDto("email1@yandex.ru", "user1", "Ян",
                 LocalDate.of(1996, 12, 5));
@@ -119,14 +115,14 @@ public class FilmTest extends FilmorateApplicationTests {
     }
 
     @Test
-    public void testSuccessDeleteLike() throws Exception {
+    void testSuccessDeleteLike() throws Exception {
         mpaRepository.save(new Mpa(1L, "G"));
         genreRepository.save(new Genre(1L, "Комедия"));
         directorRepository.save(new Director(1L, "Гайдай"));
 
         ChangeFilmDto film1 = new ChangeFilmDto("Name 1", "Description 1",
                 LocalDate.of(2000, 7, 27), 120L,
-                new MpaDto(1L, "G"), List.of(new DirectorDto(1L, "Гайдай")), Set.of(new GenreDto(1L, "Комедия")));
+                new MpaDto(1L, "G"), List.of(new DirectorDto(1L, "Гайдай")), List.of(new GenreDto(1L, "Комедия")));
         filmService.addFilm(film1);
         ChangeUserDto user1 = new ChangeUserDto("email1@yandex.ru", "user1", "Ян",
                 LocalDate.of(1996, 12, 5));
@@ -146,17 +142,17 @@ public class FilmTest extends FilmorateApplicationTests {
     }
 
     @Test
-    public void testSuccessGerPopularFilms() throws Exception {
+    void testSuccessGerPopularFilms() throws Exception {
         mpaRepository.save(new Mpa(1L, "G"));
         genreRepository.save(new Genre(1L, "Комедия"));
         directorRepository.save(new Director(1L, "Гайдай"));
 
         ChangeFilmDto film1 = new ChangeFilmDto("Name 1", "Description 1",
                 LocalDate.of(2000, 7, 27), 120L,
-                new MpaDto(1L, "G"), List.of(new DirectorDto(1L, "Гайдай")), Set.of(new GenreDto(1L, "Комедия")));
+                new MpaDto(1L, "G"), List.of(new DirectorDto(1L, "Гайдай")), List.of(new GenreDto(1L, "Комедия")));
         ChangeFilmDto film2 = new ChangeFilmDto("Name 2", "Description 2",
                 LocalDate.of(2000, 7, 27), 120L,
-                new MpaDto(1L, "G"), List.of(new DirectorDto(1L, "Гайдай")), Set.of(new GenreDto(1L, "Комедия")));
+                new MpaDto(1L, "G"), List.of(new DirectorDto(1L, "Гайдай")), List.of(new GenreDto(1L, "Комедия")));
         filmService.addFilm(film1);
         filmService.addFilm(film2);
         ChangeUserDto user1 = new ChangeUserDto("email1@yandex.ru", "user1", "Ян",
@@ -173,7 +169,7 @@ public class FilmTest extends FilmorateApplicationTests {
     }
 
     @Test
-    public void testGetPopularFilms_FilteringByGenre_Year() throws Exception {
+    void testGetPopularFilms_FilteringByGenre_Year() throws Exception {
         mpaRepository.save(new Mpa(1L, "G"));
         genreRepository.save(new Genre(1L, "Комедия"));
         genreRepository.save(new Genre(2L, "Драма"));
@@ -182,22 +178,22 @@ public class FilmTest extends FilmorateApplicationTests {
         ChangeFilmDto film1 = new ChangeFilmDto("Name 1", "Description 1",
                 LocalDate.of(2000, 7, 27), 120L,
                 new MpaDto(1L, "G"), List.of(new DirectorDto(1L, "Гайдай")),
-                Set.of(new GenreDto(1L, "Комедия")));
+                List.of(new GenreDto(1L, "Комедия")));
 
         ChangeFilmDto film2 = new ChangeFilmDto("Name 2", "Description 2",
                 LocalDate.of(2000, 7, 27), 120L,
                 new MpaDto(1L, "G"), List.of(new DirectorDto(1L, "Гайдай")),
-                Set.of(new GenreDto(2L, "Драма")));
+                List.of(new GenreDto(2L, "Драма")));
 
         ChangeFilmDto film3 = new ChangeFilmDto("Name 3", "Description 3",
                 LocalDate.of(2001, 7, 27), 120L,
                 new MpaDto(1L, "G"), List.of(new DirectorDto(1L, "Гайдай")),
-                Set.of(new GenreDto(1L, "Комедия")));
+                List.of(new GenreDto(1L, "Комедия")));
 
         ChangeFilmDto film4 = new ChangeFilmDto("Name 4", "Description 4",
                 LocalDate.of(2000, 7, 27), 120L,
                 new MpaDto(1L, "G"), List.of(new DirectorDto(1L, "Гайдай")),
-                Set.of(new GenreDto(1L, "Комедия")));
+                List.of(new GenreDto(1L, "Комедия")));
 
         filmService.addFilm(film1);
         filmService.addFilm(film2);
@@ -223,20 +219,20 @@ public class FilmTest extends FilmorateApplicationTests {
     }
 
     @Test
-    public void testSuccessGetMpa() {
+    void testSuccessGetMpa() {
         ChangeFilmDto film1 = new ChangeFilmDto("Name 1", "Description 1",
                 LocalDate.of(2000, 7, 27), 120L,
-                new MpaDto(1L, "G"), List.of(new DirectorDto(1L, "Гайдай")), Set.of(new GenreDto(1L, "Комедия")));
+                new MpaDto(1L, "G"), List.of(new DirectorDto(1L, "Гайдай")), List.of(new GenreDto(1L, "Комедия")));
         filmService.addFilm(film1);
 
         assertEquals("G", film1.getMpa().getName());
     }
 
     @Test
-    public void testSuccessGetGenre() {
+    void testSuccessGetGenre() {
         ChangeFilmDto film1 = new ChangeFilmDto("Name 1", "Description 1",
                 LocalDate.of(2000, 7, 27), 120L,
-                new MpaDto(1L, "G"), List.of(new DirectorDto(1L, "Гайдай")), Set.of(new GenreDto(1L, "Комедия")));
+                new MpaDto(1L, "G"), List.of(new DirectorDto(1L, "Гайдай")), List.of(new GenreDto(1L, "Комедия")));
         filmService.addFilm(film1);
 
         GenreDto genre = film1.getGenres().iterator().next();
@@ -245,11 +241,11 @@ public class FilmTest extends FilmorateApplicationTests {
     }
 
     @Test
-    public void testSuccessGetDirector() {
+    void testSuccessGetDirector() {
         ChangeFilmDto film1 = new ChangeFilmDto("Name 1", "Description 1",
                 LocalDate.of(2000, 7, 27), 120L,
                 new MpaDto(1L, "G"), List.of(new DirectorDto(1L, "Гайдай"), new DirectorDto(2L,
-                "Гай Ричи")), Set.of(new GenreDto(1L, "Комедия")));
+                "Гай Ричи")), List.of(new GenreDto(1L, "Комедия")));
         filmService.addFilm(film1);
 
         List<DirectorDto> directors = film1.getDirectors();
@@ -267,7 +263,7 @@ public class FilmTest extends FilmorateApplicationTests {
     }
 
     @Test
-    public void testInvalidName() throws Exception {
+    void testInvalidName() throws Exception {
         mockMvc.perform(put("/films")
                         .contentType(APPLICATION_JSON)
                         .content("{\"name\": \"\",\"description\": \"Description 1\",\"releaseDate\": \"2000-07-27\"," +
@@ -276,7 +272,7 @@ public class FilmTest extends FilmorateApplicationTests {
     }
 
     @Test
-    public void testInvalidDescriptionSize() throws Exception {
+    void testInvalidDescriptionSize() throws Exception {
         String exactly201Chars = "D".repeat(201);
         mockMvc.perform(post("/films")
                         .contentType(APPLICATION_JSON)
@@ -286,10 +282,10 @@ public class FilmTest extends FilmorateApplicationTests {
     }
 
     @Test
-    public void testInvalidReleaseDate() {
+    void testInvalidReleaseDate() {
         ChangeFilmDto film1 = new ChangeFilmDto("Name 1", "Description 1",
                 LocalDate.of(1000, 7, 27), 120L,
-                new MpaDto(1L, null), List.of(new DirectorDto(1L, null)), Set.of(new GenreDto(1L,
+                new MpaDto(1L, null), List.of(new DirectorDto(1L, null)), List.of(new GenreDto(1L,
                 null)));
 
         Exception exception = assertThrows(ValidationException.class,
@@ -299,7 +295,7 @@ public class FilmTest extends FilmorateApplicationTests {
     }
 
     @Test
-    public void testInvalidBirthday() throws Exception {
+    void testInvalidBirthday() throws Exception {
         mockMvc.perform(put("/films")
                         .contentType(APPLICATION_JSON)
                         .content("{\"name\": \"\",\"description\": \"Description 1\",\"releaseDate\": \"2000-07-27\"," +
@@ -308,7 +304,7 @@ public class FilmTest extends FilmorateApplicationTests {
     }
 
     @Test
-    public void testFindFilmsByDirectorSorted() {
+    void testFindFilmsByDirectorSorted() {
         Director director1 = new Director();
         director1.setId(1L);
         director1.setName("Test Director");
@@ -356,7 +352,7 @@ public class FilmTest extends FilmorateApplicationTests {
     }
 
     @Test
-    public void testDeleteDirector() throws Exception {
+    void testDeleteDirector() throws Exception {
         Director director = new Director();
         director.setId(1L);
         director.setName("Test Director");

@@ -20,7 +20,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
-public class UserTest extends FilmorateApplicationTests {
+class UserTest extends FilmorateApplicationTests {
 
     @Autowired
     protected UserRepository userRepository;
@@ -31,7 +31,7 @@ public class UserTest extends FilmorateApplicationTests {
     }
 
     @Test
-    public void testSuccessCreateUser() throws Exception {
+    void testSuccessCreateUser() throws Exception {
         assertEquals(0, Objects.requireNonNull(userService.getAllUsers().getBody()).size());
         mockMvc.perform(post("/users")
                         .contentType(APPLICATION_JSON)
@@ -41,7 +41,7 @@ public class UserTest extends FilmorateApplicationTests {
     }
 
     @Test
-    public void testSuccessUpdateUser() throws Exception {
+    void testSuccessUpdateUser() throws Exception {
         ChangeUserDto user1 = new ChangeUserDto("email1@yandex.ru", "user1", "Ян",
                 LocalDate.of(1996, 12, 5));
         userService.createUser(user1);
@@ -54,7 +54,7 @@ public class UserTest extends FilmorateApplicationTests {
     }
 
     @Test
-    public void testSuccessGetUser() throws Exception {
+    void testSuccessGetUser() throws Exception {
         ChangeUserDto user1 = new ChangeUserDto("email1@yandex.ru", "user1", "Ян",
                 LocalDate.of(1996, 12, 5));
         userService.createUser(user1);
@@ -64,7 +64,7 @@ public class UserTest extends FilmorateApplicationTests {
     }
 
     @Test
-    public void testSuccessAddAndGetFriend() throws Exception {
+    void testSuccessAddAndGetFriend() throws Exception {
         User user1 = new User("email1@yandex.ru", "user1", "Ян",
                 LocalDate.of(1996, 12, 5));
         User user2 = new User("email2@yandex.ru", "user2", "Ян2",
@@ -79,7 +79,7 @@ public class UserTest extends FilmorateApplicationTests {
     }
 
     @Test
-    public void testSuccessDeleteFriend() throws Exception {
+    void testSuccessDeleteFriend() throws Exception {
         User user1 = new User("email1@yandex.ru", "user1", "Ян",
                 LocalDate.of(1996, 12, 5));
         User user2 = new User("email2@yandex.ru", "user2", "Ян2",
@@ -99,7 +99,7 @@ public class UserTest extends FilmorateApplicationTests {
     }
 
     @Test
-    public void testSuccessGetCommonFriends() throws Exception {
+    void testSuccessGetCommonFriends() throws Exception {
         User user1 = new User("email1@yandex.ru", "user1", "Ян",
                 LocalDate.of(1996, 12, 5));
         User user2 = new User("email2@yandex.ru", "user2", "Ян2",
@@ -121,7 +121,7 @@ public class UserTest extends FilmorateApplicationTests {
     }
 
     @Test
-    public void testInvalidEmail() throws Exception {
+    void testInvalidEmail() throws Exception {
         mockMvc.perform(post("/users")
                         .contentType(APPLICATION_JSON)
                         .content("{\"email\": \"email\",\"login\": \"login1\",\"name\": \"name\",\"birthday\": \"2000-1-16\"}"))
@@ -129,7 +129,7 @@ public class UserTest extends FilmorateApplicationTests {
     }
 
     @Test
-    public void testInvalidEmptyEmail() throws Exception {
+    void testInvalidEmptyEmail() throws Exception {
         mockMvc.perform(post("/users")
                         .contentType(APPLICATION_JSON)
                         .content("{\"email\": \"\",\"login\": \"login1\",\"name\": \"name\",\"birthday\": \"2000-1-16\"}"))
@@ -137,7 +137,7 @@ public class UserTest extends FilmorateApplicationTests {
     }
 
     @Test
-    public void testInvalidLogin() throws Exception {
+    void testInvalidLogin() throws Exception {
         mockMvc.perform(post("/users")
                         .contentType(APPLICATION_JSON)
                         .content("{\"email\": \"email1@yandex.ru\",\"login\": \"login 1\",\"name\": \"name\",\"birthday\": \"2000-1-11\"}"))
@@ -145,7 +145,7 @@ public class UserTest extends FilmorateApplicationTests {
     }
 
     @Test
-    public void testInvalidEmptyLogin() throws Exception {
+    void testInvalidEmptyLogin() throws Exception {
         mockMvc.perform(post("/users")
                         .contentType(APPLICATION_JSON)
                         .content("{\"email\": \"email\",\"login\": \"\",\"name\": \"name\",\"birthday\": \"2000-1-16\"}"))
@@ -153,7 +153,7 @@ public class UserTest extends FilmorateApplicationTests {
     }
 
     @Test
-    public void testInvalidBirthday() throws Exception {
+    void testInvalidBirthday() throws Exception {
         mockMvc.perform(post("/users")
                         .contentType(APPLICATION_JSON)
                         .content("{\"email\": \"email\",\"login\": \"\",\"name\": \"name\",\"birthday\": \"2026-1-16\"}"))
@@ -164,15 +164,15 @@ public class UserTest extends FilmorateApplicationTests {
     void checkMethodGetRecommendations() throws Exception {
         ChangeFilmDto film1 = new ChangeFilmDto("Name 1", "Description 1",
                 LocalDate.of(2000, 7, 27), 120L,
-                new MpaDto(1L, "G"), List.of(new DirectorDto(1L, "Гайдай")), Set.of(new GenreDto(1L, "Комедия")));
+                new MpaDto(1L, "G"), List.of(new DirectorDto(1L, "Гайдай")), List.of(new GenreDto(1L, "Комедия")));
         filmService.addFilm(film1);
         ChangeFilmDto film2 = new ChangeFilmDto("Name 2", "Description 2",
                 LocalDate.of(2000, 7, 27), 120L,
-                new MpaDto(1L, "G"),  List.of(new DirectorDto(1L, "Гайдай")),Set.of(new GenreDto(1L, "Комедия")));
+                new MpaDto(1L, "G"), List.of(new DirectorDto(1L, "Гайдай")), List.of(new GenreDto(1L, "Комедия")));
         filmService.addFilm(film2);
         ChangeFilmDto film3 = new ChangeFilmDto("Name 3", "Description 3",
                 LocalDate.of(2000, 7, 27), 120L,
-                new MpaDto(1L, "G"),  List.of(new DirectorDto(1L, "Гайдай")),Set.of(new GenreDto(1L, "Комедия")));
+                new MpaDto(1L, "G"), List.of(new DirectorDto(1L, "Гайдай")), List.of(new GenreDto(1L, "Комедия")));
         filmService.addFilm(film3);
         ChangeUserDto user1 = new ChangeUserDto("email1@yandex.ru", "user1", "Ян",
                 LocalDate.of(1996, 12, 5));
@@ -225,7 +225,7 @@ public class UserTest extends FilmorateApplicationTests {
                 "Friend One", LocalDate.of(1990, 1, 1)));
         User friend2 = userRepository.save(new User("friend2@mail.com", "friend2",
                 "Friend Two", LocalDate.of(1992, 2, 2)));
-        // Пользователь который будет удален
+        // Пользователь, который будет удален
         User mainUser = userRepository.save(new User("main@mail.com", "main_user",
                 "Main User", LocalDate.of(1985, 5, 5)));
 
@@ -275,7 +275,7 @@ public class UserTest extends FilmorateApplicationTests {
                 LocalDate.of(2000, 2, 2));
         ChangeFilmDto film = new ChangeFilmDto("Name 1", "Description 1",
                 LocalDate.of(2000, 7, 27), 120L,
-                new MpaDto(1L, "G"), List.of(new DirectorDto(1L, "Гайдай")), Set.of(new GenreDto(1L, "Комедия")));
+                new MpaDto(1L, "G"), List.of(new DirectorDto(1L, "Гайдай")), List.of(new GenreDto(1L, "Комедия")));
 
         userService.createUser(user1);
         userService.createUser(user2);

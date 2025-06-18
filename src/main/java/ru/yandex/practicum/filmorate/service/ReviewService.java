@@ -14,10 +14,7 @@ import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.mapper.ReviewMapper;
 import ru.yandex.practicum.filmorate.model.*;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -168,21 +165,20 @@ public class ReviewService {
     public ResponseEntity<Set<ReviewResponseDto>> getReviewsToFilm(Long filmId, int count) {
         log.debug("Попытка получить все отзывы на фильм с ID={}", filmId);
 
+        Set<ReviewResponseDto> collect;
         if (filmId == null) {
-            Set<Review> reviews = new HashSet<>(reviewRepository.findAll());
-            Set<ReviewResponseDto> collect = reviews.stream()
+            collect = reviewRepository.findAll().stream()
                     .map(reviewMapper::toReviewDto)
-                    .collect(Collectors.toSet());
-
-            log.debug("Возвращено {} отзывов", collect.size());
-            return ResponseEntity.ok(collect);
+                    .sorted(Comparator.comparing(ReviewResponseDto::getUseful).reversed())
+                    .limit(count)
+                    .collect(Collectors.toCollection(LinkedHashSet::new));
+        } else {
+            collect = reviewRepository.findAllByFilmId(filmId).orElse(new HashSet<>()).stream()
+                    .map(reviewMapper::toReviewDto)
+                    .sorted(Comparator.comparing(ReviewResponseDto::getUseful).reversed())
+                    .limit(count)
+                    .collect(Collectors.toCollection(LinkedHashSet::new));
         }
-
-        Set<Review> reviews = reviewRepository.findAllByFilmId(filmId).orElse(new HashSet<>())
-                .stream().limit(count).collect(Collectors.toSet());
-        Set<ReviewResponseDto> collect = reviews.stream()
-                .map(reviewMapper::toReviewDto)
-                .collect(Collectors.toSet());
 
         log.debug("Возвращено {} отзывов", collect.size());
         return ResponseEntity.ok(collect);

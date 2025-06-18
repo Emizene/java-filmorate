@@ -5,22 +5,14 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Named;
 import org.springframework.beans.factory.annotation.Autowired;
-import ru.yandex.practicum.filmorate.dao.DirectorRepository;
-import ru.yandex.practicum.filmorate.dao.GenreRepository;
-import ru.yandex.practicum.filmorate.dao.MpaRepository;
+import ru.yandex.practicum.filmorate.dao.*;
 import ru.yandex.practicum.filmorate.dto.*;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
-import ru.yandex.practicum.filmorate.model.Director;
+import ru.yandex.practicum.filmorate.model.*;
 import ru.yandex.practicum.filmorate.dao.ReviewRepository;
-import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.model.Genre;
-import ru.yandex.practicum.filmorate.model.Mpa;
-import ru.yandex.practicum.filmorate.model.Review;
-import java.util.Set;
+
+import java.util.*;
 import java.util.stream.Collectors;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
 
 @Slf4j
 @Mapper(componentModel = "spring", uses = {GenreMapper.class, MpaMapper.class, DirectorMapper.class, ReviewMapper.class})

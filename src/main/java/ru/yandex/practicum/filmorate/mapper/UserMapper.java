@@ -1,9 +1,7 @@
 package ru.yandex.practicum.filmorate.mapper;
 
 import org.mapstruct.Mapper;
-import ru.yandex.practicum.filmorate.dto.ChangeUserDto;
-import ru.yandex.practicum.filmorate.dto.FriendDto;
-import ru.yandex.practicum.filmorate.dto.UserResponseDto;
+import ru.yandex.practicum.filmorate.dto.*;
 import ru.yandex.practicum.filmorate.model.User;
 
 import java.util.List;
