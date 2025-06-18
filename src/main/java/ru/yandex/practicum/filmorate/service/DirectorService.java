@@ -39,7 +39,6 @@ public class DirectorService {
         return ResponseEntity.ok(directorMapper.toDirectorDto(director));
     }
 
-
     @Transactional
     public ResponseEntity<DirectorDto> addDirector(DirectorDto director) {
         log.debug("Попытка добавить режиссера: {}", director.getName());

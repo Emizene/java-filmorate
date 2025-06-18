@@ -47,8 +47,10 @@ public class FilmController {
     }
 
     @GetMapping("/popular")
-    public ResponseEntity<List<FilmResponseDto>> getPopularFilms(@RequestParam(defaultValue = "10") int count) {
-        return filmService.getPopularFilms(count);
+    public ResponseEntity<List<FilmResponseDto>> getPopularFilms(@RequestParam(defaultValue = "10") int count,
+                                                                 @RequestParam(required = false) Long genreId,
+                                                                 @RequestParam(required = false) Integer year) {
+        return filmService.getPopularFilms(count,genreId,year);
     }
 
     @GetMapping("/{filmId}")
@@ -93,6 +95,7 @@ public class FilmController {
         } else {
             return ResponseEntity.badRequest().build();
         }
+
 
         List<FilmResponseDto> filmResponseDtos = filmMapper.toFilmDtoList(films);
         return ResponseEntity.ok().body(filmResponseDtos);
