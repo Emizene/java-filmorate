@@ -4,10 +4,13 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import ru.yandex.practicum.filmorate.dao.*;
 import ru.yandex.practicum.filmorate.dto.*;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
@@ -377,5 +380,50 @@ class FilmTest extends FilmorateApplicationTests {
         DirectorDto dto = new DirectorDto(null, "Иван Иванов");
 
         assertThat(dto.getName()).isNotBlank();
+    }
+    @Test
+    void testSearchFilmsByTitle_shouldReturnMatchingFilm() throws Exception {
+        // Создаем и сохраняем MPA
+        Mpa mpa = mpaRepository.findById(1L).orElseGet(() -> mpaRepository.save(new Mpa(1L, "G")));
+
+        // Cоздаем и сохраняем жанр
+        Genre genre = genreRepository.findById(1L).orElseGet(() -> genreRepository.save(new Genre(1L, "Комедия")));
+
+        // Создаем DTO для добавления фильма
+        ChangeFilmDto filmDto = new ChangeFilmDto(
+                "Test Film Name",
+                "Test Description",
+                LocalDate.of(2023, 1, 6),
+                125L,
+                new MpaDto(1L, "G"),
+                Collections.emptyList(),
+                Collections.singletonList(new GenreDto(1L, "Комедия"))
+        );
+
+        // Добавляем фильм, используя FilmService
+        filmService.addFilm(filmDto);
+        String query = "Test"; // поисковый запрос
+
+        mockMvc.perform(MockMvcRequestBuilders.get("/films/search")
+                        .param("query", query)
+                        .param("by", "title")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andDo(print())
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].name").value("Test Film Name"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].description").value("Test Description"));
+    }
+
+    @Test
+    void testSearchFilmsByTitle_shouldReturnEmptyList_whenNoMatchingTitle() throws Exception {
+        String query = "NonExistentFilm";
+
+        mockMvc.perform(MockMvcRequestBuilders.get("/films/search")
+                        .param("query", query)
+                        .param("by", "title")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andDo(print())
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.jsonPath("$").isEmpty());
     }
 }
