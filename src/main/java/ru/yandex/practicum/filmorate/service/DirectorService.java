@@ -23,7 +23,7 @@ public class DirectorService {
     private final DirectorMapper directorMapper;
 
     public ResponseEntity<List<DirectorDto>> getAllDirectors() {
-        log.debug("Запрос всех режессеров");
+        log.debug("Запрос всех режиссеров");
         List<DirectorDto> directors = directorRepository.findAll().stream()
                 .map(directorMapper::toDirectorDto)
                 .toList();

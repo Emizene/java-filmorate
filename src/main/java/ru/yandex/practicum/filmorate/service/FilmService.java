@@ -72,6 +72,8 @@ public class FilmService {
             });
         }
 
+//        , genreRepository.findById(genres.getId()).orElse(null)
+
         Film entity = filmMapper.toEntity(film);
         filmRepository.save(entity);
         log.info("Фильм успешно добавлен: ID={}, Название={}", entity.getId(), entity.getName());
@@ -371,13 +373,11 @@ public class FilmService {
         return ResponseEntity.ok(filmMapper.toFilmDtoList(commonFilms));
     }
 
-    // Поиск фильмов по названию
     public List<Film> searchFilmsByTitle(String query) {
         log.debug("Начат поиск фильмов с подстрокой {}", query);
         return filmRepository.findByNameContainingIgnoreCase(query);
     }
 
-    // Поиск фильмов по режиссёру
     public List<Film> searchFilmsByDirector(String query) {
         log.debug("Начат поиск режиссеров с подстрокой {}", query);
         List<Director> directors = directorRepository.findByNameContainingIgnoreCase(query);
@@ -388,7 +388,6 @@ public class FilmService {
         return filmRepository.findByDirectors_IdIn(directorIds);
     }
 
-    // Поиск по названию или режиссеру
     public List<Film> searchFilmsByTitleOrDirector(String query) {
         log.debug("Начат поиск фильмов и режиссеров с подстрокой {}", query);
         return filmRepository.searchFilmsByTitleOrDirectorName(query);
