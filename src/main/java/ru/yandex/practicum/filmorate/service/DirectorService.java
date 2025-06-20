@@ -6,7 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import ru.yandex.practicum.filmorate.dao.DirectorRepository;
+import ru.yandex.practicum.filmorate.repository.DirectorRepository;
 import ru.yandex.practicum.filmorate.dto.DirectorDto;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
@@ -23,7 +23,7 @@ public class DirectorService {
     private final DirectorMapper directorMapper;
 
     public ResponseEntity<List<DirectorDto>> getAllDirectors() {
-        log.debug("Запрос всех режессеров");
+        log.debug("Запрос всех режиссеров");
         List<DirectorDto> directors = directorRepository.findAll().stream()
                 .map(directorMapper::toDirectorDto)
                 .toList();

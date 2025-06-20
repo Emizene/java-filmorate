@@ -31,6 +31,7 @@ public class ReviewRating {
             joinColumns = @JoinColumn(name = "review_id"),
             inverseJoinColumns = @JoinColumn(name = "user_id")
     )
+    @Builder.Default
     private Set<User> usersLikes = new HashSet<>();
 
     @OneToMany
@@ -39,6 +40,7 @@ public class ReviewRating {
             joinColumns = @JoinColumn(name = "review_id"),
             inverseJoinColumns = @JoinColumn(name = "user_id")
     )
+    @Builder.Default
     private Set<User> usersDislikes = new HashSet<>();
 
 }

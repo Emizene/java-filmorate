@@ -1,4 +1,4 @@
-package ru.yandex.practicum.filmorate.dao;
+package ru.yandex.practicum.filmorate.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
@@ -44,10 +44,8 @@ public interface FilmRepository extends JpaRepository<Film, Long>, JpaSpecificat
             """, nativeQuery = true)
     List<Film> findRecommendations(@Param("userId") Long userId);
 
-    // Поиск по названию фильма
     List<Film> findByNameContainingIgnoreCase(String query);
 
-    // Поиск фильмов по ID режиссёров
     List<Film> findByDirectors_IdIn(List<Long> directorIds);
 
     @Query("SELECT DISTINCT f FROM Film f " +
