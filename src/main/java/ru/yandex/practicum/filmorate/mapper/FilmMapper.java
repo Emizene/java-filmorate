@@ -5,36 +5,48 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Named;
 import org.springframework.beans.factory.annotation.Autowired;
-import ru.yandex.practicum.filmorate.repository.*;
-import ru.yandex.practicum.filmorate.dto.*;
-import ru.yandex.practicum.filmorate.exception.NotFoundException;
-import ru.yandex.practicum.filmorate.model.*;
-import ru.yandex.practicum.filmorate.repository.ReviewRepository;
+import org.springframework.lang.Nullable;
 
-import java.util.*;
+import ru.yandex.practicum.filmorate.dto.ChangeFilmDto;
+import ru.yandex.practicum.filmorate.dto.DirectorDto;
+import ru.yandex.practicum.filmorate.dto.FilmResponseDto;
+import ru.yandex.practicum.filmorate.dto.GenreDto;
+import ru.yandex.practicum.filmorate.dto.MpaDto;
+import ru.yandex.practicum.filmorate.dto.ReviewResponseDto;
+import ru.yandex.practicum.filmorate.model.Director;
+import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.Genre;
+import ru.yandex.practicum.filmorate.model.Mpa;
+import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.service.DataGatewayService;
+
+
+import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Slf4j
-@Mapper(componentModel = "spring", uses = {GenreMapper.class, MpaMapper.class, DirectorMapper.class, ReviewMapper.class})
+@Mapper(componentModel = "spring", uses = {
+        GenreMapper.class,
+        MpaMapper.class,
+        DirectorMapper.class,
+        ReviewMapper.class,
+        DataGatewayService.class
+})
 public abstract class FilmMapper {
+
     @Autowired
-    MpaRepository mpaRepository;
+    protected DataGatewayService dataGatewayService;
+
     @Autowired
-    GenreRepository genreRepository;
-    @Autowired
-    DirectorRepository directorRepository;
-    @Autowired
-    ReviewRepository reviewRepository;
-    @Autowired
-    ReviewMapper reviewMapper;
-    @Autowired
-    UserRepository userRepository;
+    protected ReviewMapper reviewMapper;  // Для явного вызова в кастомных методах
 
     @Mapping(source = "userWithLikesId", target = "usersWithLikes", qualifiedByName = "mapUsersWithLikes")
     @Mapping(source = "mpa", target = "mpaRating", qualifiedByName = "mapMpaToEntity")
     @Mapping(source = "genres", target = "genres", qualifiedByName = "mapGenre")
     @Mapping(source = "directors", target = "directors", qualifiedByName = "mapDirector")
     public abstract Film toEntity(ChangeFilmDto changeFilmDto);
+
 
     @Mapping(target = "likes", expression = "java(film.getUsersWithLikes().size())")
     @Mapping(source = "mpaRating", target = "mpa")
@@ -46,16 +58,16 @@ public abstract class FilmMapper {
     public abstract List<FilmResponseDto> toFilmDtoList(List<Film> film);
 
     @Named("mapMpaToEntity")
-    Mpa mapMpaToEntity(MpaDto mpa) {
-        if (mpa == null || mpa.getId() == null) {
+    Mpa mapMpaToEntity(@Nullable MpaDto mpa) {
+        if (mpa == null) {
             return null;
         }
-        return mpaRepository.findById(mpa.getId()).orElse(null);
+        return dataGatewayService.findMpaOrNull(mpa.getId());
     }
 
     @Named("mapGenre")
     Genre mapGenre(GenreDto genres) {
-        return genreRepository.findById(genres.getId()).orElse(null);
+        return dataGatewayService.findGenreOrNull(genres.getId());
     }
 
     @Named("mapDirector")
@@ -63,29 +75,19 @@ public abstract class FilmMapper {
         if (director == null || director.getId() == null) {
             return null;
         }
-
-        Optional<Director> foundDirector = directorRepository.findById(director.getId());
-        if (foundDirector.isPresent()) {
-            return foundDirector.get();
-        } else {
-            log.error("Режиссёр с ID {} не найден", director.getId());
-            throw new NotFoundException("Режиссёр с ID " + director.getId() + " не найден");
-        }
-    }
-
-    @Named("mapReview")
-    Set<ReviewResponseDto> mapReview(Film film) {
-        Set<Review> reviews = reviewRepository.findAllByFilmId(film.getId()).orElse(new HashSet<>());
-        return reviews.stream()
-                .map(reviewMapper::toReviewDto)
-                .collect(Collectors.toSet());
+        return dataGatewayService.findDirectorOrThrow(director.getId());
     }
 
     @Named("mapUsersWithLikes")
     protected List<User> mapUsersWithLikes(List<Long> userIds) {
-        if (userIds == null || userIds.isEmpty()) {
-            return new ArrayList<>();
-        }
-        return userRepository.findAllById(userIds);
+        return dataGatewayService.findUsersWithLikes(userIds);
+    }
+
+    @Named("mapReview")
+    Set<ReviewResponseDto> mapReview(Film film) {
+        return dataGatewayService.findReviewsForFilm(film.getId())
+                .stream()
+                .map(reviewMapper::toReviewDto)
+                .collect(Collectors.toSet());
     }
 }
