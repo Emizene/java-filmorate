@@ -11,7 +11,7 @@ import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
-import ru.yandex.practicum.filmorate.dao.*;
+import ru.yandex.practicum.filmorate.repository.*;
 import ru.yandex.practicum.filmorate.dto.*;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.*;
@@ -381,6 +381,7 @@ class FilmTest extends FilmorateApplicationTests {
 
         assertThat(dto.getName()).isNotBlank();
     }
+
     @Test
     void testSearchFilmsByTitle_shouldReturnMatchingFilm() throws Exception {
         // Создаем и сохраняем MPA

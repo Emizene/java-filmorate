@@ -1,6 +1,7 @@
 package ru.yandex.practicum.filmorate.dto;
 
 import lombok.Data;
+
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Set;
@@ -19,7 +20,7 @@ public class ChangeFilmDto {
     private Set<ReviewResponseDto> reviews;
 
     public ChangeFilmDto(String name, String description, LocalDate releaseDate,
-            Long duration, MpaDto mpa, List<DirectorDto> directors, List<GenreDto> genres) {
+                         Long duration, MpaDto mpa, List<DirectorDto> directors, List<GenreDto> genres) {
         this.name = name;
         this.description = description;
         this.releaseDate = releaseDate;

@@ -5,11 +5,11 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Named;
 import org.springframework.beans.factory.annotation.Autowired;
-import ru.yandex.practicum.filmorate.dao.*;
+import ru.yandex.practicum.filmorate.repository.*;
 import ru.yandex.practicum.filmorate.dto.*;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.*;
-import ru.yandex.practicum.filmorate.dao.ReviewRepository;
+import ru.yandex.practicum.filmorate.repository.ReviewRepository;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -27,7 +27,10 @@ public abstract class FilmMapper {
     ReviewRepository reviewRepository;
     @Autowired
     ReviewMapper reviewMapper;
+    @Autowired
+    UserRepository userRepository;
 
+    @Mapping(source = "userWithLikesId", target = "usersWithLikes", qualifiedByName = "mapUsersWithLikes")
     @Mapping(source = "mpa", target = "mpaRating", qualifiedByName = "mapMpaToEntity")
     @Mapping(source = "genres", target = "genres", qualifiedByName = "mapGenre")
     @Mapping(source = "directors", target = "directors", qualifiedByName = "mapDirector")
@@ -76,5 +79,13 @@ public abstract class FilmMapper {
         return reviews.stream()
                 .map(reviewMapper::toReviewDto)
                 .collect(Collectors.toSet());
+    }
+
+    @Named("mapUsersWithLikes")
+    protected List<User> mapUsersWithLikes(List<Long> userIds) {
+        if (userIds == null || userIds.isEmpty()) {
+            return new ArrayList<>();
+        }
+        return userRepository.findAllById(userIds);
     }
 }

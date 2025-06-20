@@ -1,4 +1,4 @@
-package ru.yandex.practicum.filmorate.dao;
+package ru.yandex.practicum.filmorate.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
@@ -12,4 +12,6 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
     Optional<Review> findByUserIdAndFilmId(Long userId, Long filmId);
 
     Optional<Set<Review>> findAllByFilmId(Long filmId);
+
+    boolean existsByUserIdAndFilmId(Long userId, Long filmId);
 }

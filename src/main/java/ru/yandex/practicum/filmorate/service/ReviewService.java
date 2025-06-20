@@ -3,10 +3,9 @@ package ru.yandex.practicum.filmorate.service;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import ru.yandex.practicum.filmorate.dao.*;
+import ru.yandex.practicum.filmorate.repository.*;
 import ru.yandex.practicum.filmorate.dto.ChangeReviewDto;
 import ru.yandex.practicum.filmorate.dto.ReviewResponseDto;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
@@ -26,26 +25,37 @@ public class ReviewService {
     private final UserRepository userRepository;
     private final ReviewMapper reviewMapper;
     private final EventService eventService;
+    private final FilmRepository filmRepository;
 
     @Transactional
-    public ResponseEntity<ReviewResponseDto> addReview(ChangeReviewDto review) {
-        log.info("Попытка добавить отзыв к фильму: {}", review.getFilmId());
-        Optional<Review> oldReview = reviewRepository.findByUserIdAndFilmId(review.getUserId(), review.getFilmId());
-        if (oldReview.isPresent()) {
-            throw new ValidationException("Пользователь с ID: %s уже оставил отзыв к фильму с ID: %s"
-                    .formatted(review.getFilmId(), review.getUserId()));
-        }
-        Review entity = reviewMapper.toEntity(review);
-        reviewRepository.save(entity);
-        ratingRepository.save(ReviewRating.builder()
-                .review(entity)
-                .usersLikes(new HashSet<>())
-                .usersDislikes(new HashSet<>())
-                .build());
-        eventService.createEvent(entity.getUser().getId(), EventType.REVIEW, EventOperation.ADD, entity.getId());
+    public ReviewResponseDto addReview(ChangeReviewDto dto) {
 
-        log.info("Отзыв к фильму с ID: {} успешно добавлен", review.getFilmId());
-        return ResponseEntity.status(HttpStatus.CREATED).body(reviewMapper.toReviewDto(entity));
+        User user = userRepository.findById(dto.getUserId())
+                .orElseThrow(() -> new NotFoundException("User not found"));
+        Film film = filmRepository.findById(dto.getFilmId())
+                .orElseThrow(() -> new NotFoundException("Film not found"));
+
+        Review review = reviewMapper.toEntity(dto);
+
+        review.setUser(user);
+        review.setFilm(film);
+
+        Review savedReview = reviewRepository.save(review);
+        log.debug("Saved review ID: {}", savedReview.getId());
+
+        ReviewRating rating = new ReviewRating();
+        rating.setReview(savedReview);
+        rating.setUsersLikes(new HashSet<>());
+        rating.setUsersDislikes(new HashSet<>());
+        ratingRepository.save(rating);
+
+        eventService.createEvent(
+                savedReview.getUser().getId(),
+                EventType.REVIEW,
+                EventOperation.ADD,
+                savedReview.getId()
+        );
+        return reviewMapper.toReviewDto(savedReview);
     }
 
     @Transactional

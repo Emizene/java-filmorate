@@ -2,37 +2,42 @@ package ru.yandex.practicum.filmorate.mapper;
 
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
-import org.mapstruct.Named;
-import org.springframework.beans.factory.annotation.Autowired;
-import ru.yandex.practicum.filmorate.dao.*;
 import ru.yandex.practicum.filmorate.dto.ChangeReviewDto;
 import ru.yandex.practicum.filmorate.dto.ReviewResponseDto;
+import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Review;
-import ru.yandex.practicum.filmorate.model.ReviewRating;
+import ru.yandex.practicum.filmorate.model.User;
 
 @Mapper(componentModel = "spring")
-public abstract class ReviewMapper {
-    @Autowired
-    UserRepository userRepository;
-    @Autowired
-    FilmRepository filmRepository;
-    @Autowired
-    ReviewRatingRepository reviewRatingRepository;
+public interface ReviewMapper {
 
+    // Маппинг для создания нового отзыва
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "user", expression = "java(mapUser(dto.getUserId()))")
+    @Mapping(target = "film", expression = "java(mapFilm(dto.getFilmId()))")
+    Review toEntity(ChangeReviewDto dto);
+
+    @Mapping(target = "reviewId", source = "id")
+    @Mapping(target = "useful", expression = "java(calculateUseful(review))")
     @Mapping(target = "userId", source = "user.id")
     @Mapping(target = "filmId", source = "film.id")
-    @Mapping(target = "reviewId", source = "id")
-    @Mapping(target = "useful", source = "review.id", qualifiedByName = "mapUseful")
-    public abstract ReviewResponseDto toReviewDto(Review review);
+    ReviewResponseDto toReviewDto(Review review);
 
-    @Mapping(target = "user", expression = "java(userRepository.findById(changeReviewDto.getUserId()).orElseThrow())")
-    @Mapping(target = "film", expression = "java(filmRepository.findById(changeReviewDto.getFilmId()).orElseThrow())")
-    @Mapping(target = "id", source = "reviewId")
-    public abstract Review toEntity(ChangeReviewDto changeReviewDto);
+    default int calculateUseful(Review review) {
+        if (review.getRating() == null) return 0;
+        return review.getRating().getUsersLikes().size() -
+                review.getRating().getUsersDislikes().size();
+    }
 
-    @Named("mapUseful")
-    Integer mapUseful(Long reviewId) {
-        ReviewRating reviewRating = reviewRatingRepository.findByReviewId(reviewId).orElseThrow();
-        return reviewRating.getUsersLikes().size() - reviewRating.getUsersDislikes().size();
+    default User mapUser(Long userId) {
+        User user = new User();
+        user.setId(userId);
+        return user;
+    }
+
+    default Film mapFilm(Long filmId) {
+        Film film = new Film();
+        film.setId(filmId);
+        return film;
     }
 }
