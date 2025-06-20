@@ -4,8 +4,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import ru.yandex.practicum.filmorate.dto.ChangeUserDto;
-import ru.yandex.practicum.filmorate.dto.UserResponseDto;
+import ru.yandex.practicum.filmorate.dto.*;
 import ru.yandex.practicum.filmorate.service.UserService;
 
 import java.util.List;
@@ -57,4 +56,19 @@ public class UserController {
         return userService.getUserById(userId);
     }
 
+    @GetMapping("/{userId}/recommendations")
+    public ResponseEntity<List<FilmResponseDto>> getRecommendations(@PathVariable Long userId) {
+        return userService.getRecommendations(userId);
+    }
+
+    @DeleteMapping("/{userId}")
+    public ResponseEntity<Void> deleteUserById(@PathVariable Long userId) {
+        userService.deleteUser(userId);
+        return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/{userId}/feed")
+    public ResponseEntity<List<EventDto>> getEventFeed(@PathVariable Long userId) {
+        return userService.getUserEvents(userId);
+    }
 }

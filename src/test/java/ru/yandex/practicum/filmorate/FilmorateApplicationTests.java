@@ -6,6 +6,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.web.servlet.MockMvc;
 import ru.yandex.practicum.filmorate.service.FilmService;
+import ru.yandex.practicum.filmorate.service.ReviewService;
 import ru.yandex.practicum.filmorate.service.UserService;
 
 @SpringBootTest
@@ -21,6 +22,9 @@ class FilmorateApplicationTests {
 
     @Autowired
     protected FilmService filmService;
+
+    @Autowired
+    protected ReviewService reviewService;
 
     @Autowired
     protected MockMvc mockMvc;

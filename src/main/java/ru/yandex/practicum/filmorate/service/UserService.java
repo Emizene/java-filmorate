@@ -6,23 +6,25 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import ru.yandex.practicum.filmorate.dao.UserRepository;
-import ru.yandex.practicum.filmorate.dto.ChangeUserDto;
-import ru.yandex.practicum.filmorate.dto.UserResponseDto;
+import ru.yandex.practicum.filmorate.repository.FilmRepository;
+import ru.yandex.practicum.filmorate.repository.UserRepository;
+import ru.yandex.practicum.filmorate.dto.*;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.mapper.UserMapper;
-import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.model.*;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Slf4j
 @RequiredArgsConstructor
 @Service
 public class UserService {
     private final UserRepository userRepository;
+    private final FilmRepository filmRepository;
     private final UserMapper userMapper;
+    private final FilmService filmService;
+    private final EventService eventService;
 
     public ResponseEntity<List<UserResponseDto>> getAllUsers() {
         log.debug("Запрос всех пользователей");
@@ -134,6 +136,7 @@ public class UserService {
         user.getFriends().add(friend);
 
         userRepository.save(user);
+        eventService.createEvent(userId, EventType.FRIEND, EventOperation.ADD, friendId);
 
         log.info("Пользователь {} успешно добавлен в друзья к {}", friendId, userId);
         return ResponseEntity.ok().build();
@@ -149,6 +152,7 @@ public class UserService {
                 .orElseThrow(() -> new NotFoundException("Пользователь с ID %s не найден".formatted(friendId)));
 
         user.getFriends().remove(friend);
+        eventService.createEvent(userId, EventType.FRIEND, EventOperation.REMOVE, friendId);
 
         log.info("Пользователь {} удален из друзей у {}", friendId, userId);
         return ResponseEntity.ok().build();
@@ -168,13 +172,8 @@ public class UserService {
                 .filter(user2Friends::contains)
                 .toList();
 
-        List<User> commonFriendUsers = commonFriends.stream()
-                .map(it -> userRepository.findById(it.getId()))
-                .map(Optional::orElseThrow)
-                .collect(Collectors.toList());
-
-        log.info("Найдено {} общих друзей между {} и {}", commonFriendUsers.size(), user1Id, user2Id);
-        return ResponseEntity.ok(userMapper.toUserDtoList(commonFriendUsers));
+        log.info("Найдено {} общих друзей между {} и {}", commonFriends.size(), user1Id, user2Id);
+        return ResponseEntity.ok(userMapper.toUserDtoList(commonFriends));
     }
 
     public ResponseEntity<List<UserResponseDto>> getFriends(Long userId) {
@@ -210,5 +209,40 @@ public class UserService {
         log.warn("Выполняется запрос на удаление всех пользователей");
         userRepository.deleteAll();
         log.info("Все пользователи удалены");
+    }
+
+    public ResponseEntity<List<FilmResponseDto>> getRecommendations(Long userId) {
+        log.debug("Выполняется запрос на получение рекомендаций для пользователя {}", userId);
+        return ResponseEntity.ok(filmService.getRecommendations(userId));
+    }
+
+    @Transactional
+    public void deleteUser(long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new NotFoundException("Пользователь с ID %s не найден".formatted(userId)));
+
+        // Удалить связи, где пользователь добавлен в друзья другими
+        Set<User> usersWhoAdded = userRepository.findUsersWhoAddedAsFriend(userId);
+        usersWhoAdded.forEach(u -> u.getFriends().remove(user));
+        userRepository.saveAll(usersWhoAdded);
+
+        // Удалить дружеские связи пользователя
+        user.getFriends().clear();
+
+        // Удалить лайки
+        List<Film> likedFilmsCopy = new ArrayList<>(user.getLikedFilms());
+        likedFilmsCopy.forEach(film -> {
+            film.getUsersWithLikes().remove(user);
+        });
+        filmRepository.saveAll(likedFilmsCopy);
+
+        // Удалить самого пользователя
+        userRepository.delete(user);
+    }
+
+    public ResponseEntity<List<EventDto>> getUserEvents(Long userId) {
+        log.debug("Выполняется запрос на получение событий пользователя {}", userId);
+        getUserById(userId);
+        return ResponseEntity.ok(eventService.getEvents(userId));
     }
 }
