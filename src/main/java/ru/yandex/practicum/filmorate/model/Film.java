@@ -9,9 +9,7 @@ import jakarta.validation.constraints.Size;
 import lombok.*;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 @Getter
 @Setter
@@ -40,11 +38,19 @@ public class Film {
 
     @Positive(message = "Продолжительность фильма должна быть положительным числом")
     @Column(nullable = false)
-    private Integer duration;
+    private Long duration;
 
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne
     @JoinColumn(name = "rating_id")
     private Mpa mpaRating;
+
+    @ManyToMany(fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    @JoinTable(
+            name = "film_directors",
+            joinColumns = @JoinColumn(name = "film_id"),
+            inverseJoinColumns = @JoinColumn(name = "director_id")
+    )
+    private List<Director> directors = new ArrayList<>();
 
     @ManyToMany
     @JoinTable(
@@ -52,7 +58,7 @@ public class Film {
             joinColumns = @JoinColumn(name = "film_id"),
             inverseJoinColumns = @JoinColumn(name = "genre_id")
     )
-    private List<Genre> genres;
+    private List<Genre> genres = new ArrayList<>();
 
     @ManyToMany
     @JoinTable(

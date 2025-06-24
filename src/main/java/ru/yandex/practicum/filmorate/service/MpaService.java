@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import ru.yandex.practicum.filmorate.dao.MpaRepository;
+import ru.yandex.practicum.filmorate.repository.MpaRepository;
 import ru.yandex.practicum.filmorate.dto.MpaDto;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.mapper.MpaMapper;
@@ -40,5 +40,4 @@ public class MpaService {
 
         return ResponseEntity.ok(mpaMapper.toMpaDto(mpa));
     }
-
 }

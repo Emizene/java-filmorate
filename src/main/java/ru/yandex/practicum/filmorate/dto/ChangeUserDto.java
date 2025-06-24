@@ -2,7 +2,6 @@ package ru.yandex.practicum.filmorate.dto;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
 import java.time.LocalDate;
 import java.util.List;
 
@@ -23,5 +22,4 @@ public class ChangeUserDto {
         this.name = name;
         this.birthday = birthday;
     }
-
 }
